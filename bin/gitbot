@@ -12,6 +12,10 @@ require 'openssl'
 # Loading Configs #
 ###################
 
+def remap_chanfilters(cf, mappings)
+  cf.keys.each { |k| cf[mappings[k]] = cf.delete(k) if mappings[k] }
+end
+
 config_file = ARGV.shift || "config.yml"
 if not File.exists? config_file
   puts "Can't find config file #{config_file}"
@@ -29,9 +33,11 @@ $bot = Cinch::Bot.new do
     c.realname = $config["irc"]["realname"]
     c.server = $config["irc"]["server"]
     c.port = $config["irc"]["port"]
+    mappings = {}
     c.channels = $config["irc"]["channels"].map! do |chan|
-      chan + ENV['GITBOT_IRC_CHAN_EXT'].to_s # $config["irc"]["channel-ext"]
+      mappings[chan] = chan + ENV['GITBOT_IRC_CHAN_EXT'].to_s # $config["irc"]["channel-ext"]
     end
+    remap_chanfilters($config["filters"], mappings)
   end
 end
 
@@ -186,7 +192,8 @@ def get_issue_comment(data)
   repo = data["repository"]["name"]
   say repo, "#{Cinch::Formatting.format(:Black, '[')}" + format_repo(data) + \
             "#{Cinch::Formatting.format(:Black, ']')} " + format_author(data) + \
-            " #{data["action"]} a comment on issue " + format_issuenumber(data) + ": " + \
+            " #{data["action"]} comment on #{data["issue"].has_key?("pull_request") ? 'PR' : 'issue'} " + \
+            format_issuenumber(data) + ": " + \
             format_issuetitle(data) + " @ " + format_commenturl(data)
 end
 
