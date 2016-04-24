@@ -215,6 +215,7 @@ configure do
   set :port, $config["http"]["port"]
   set :logging, false
   set :lock, true
+  set :run, true
 end
 
 get "/" do
