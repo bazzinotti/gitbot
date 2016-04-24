@@ -41,6 +41,7 @@ $bot = Cinch::Bot.new do
   end
 end
 
+
 Thread.new do
   $bot.start
 end
@@ -142,13 +143,16 @@ def format_prurl(data)
   Git.io.generate data["pull_request"]["html_url"]
 end
 
-
 def format_issueurl(data)
   Git.io.generate data["issue"]["html_url"]
 end
 
 def format_commenturl(data)
   Git.io.generate data["comment"]["html_url"]
+end
+
+def format_releaseurl(data)
+  Git.io.generate data["release"]["html_url"]
 end
 
 ##################
@@ -169,6 +173,23 @@ def get_watch(data)
             " #{data["action"]} stargazing. Total: " + format_stargazers_count(data)
 end
 
+#------------------------------
+def format_commit_id(data)
+  Cinch::Formatting.format(:grey, "#{data["comment"]["commit_id"][0..7]}")
+end
+def format_path(data)
+  Cinch::Formatting.format(:teal, "#{data["comment"]["path"]}")
+end
+def get_commit_comment(data)
+  repo = data["repository"]["name"]
+
+  say repo, "#{Cinch::Formatting.format(:Black, '[')}" + format_repo(data) + \
+            "#{Cinch::Formatting.format(:Black, ']')} " + format_author(data) + \
+            " #{data["action"]} commit comment on " + \
+            format_commit_id(data) + ":" + \
+            format_path(data) + " @ " + format_commenturl(data)
+end
+#------------------------------
 def get_create(data)
   halt 501, "Not yet implemented, how pitiful."
 end
@@ -200,11 +221,29 @@ end
 def get_pull_request(data)
   repo = data["repository"]["name"]
 
-  say repo, "#{Cinch::Formatting.format(:Black, '[')}" + format_repo(data) + "#{Cinch::Formatting.format(:Black, ']')} " + format_prauthor(data) + " #{data["action"]} pull request " + format_prnumber(data) + ": " + format_prtitle(data) + " (" + format_prhead(data) + " \u{2192} " + format_prbase(data) + ") @ " + format_prurl(data)
+  say repo, "#{Cinch::Formatting.format(:Black, '[')}" + format_repo(data) + \
+            "#{Cinch::Formatting.format(:Black, ']')} " + format_prauthor(data) + \
+            " #{data["action"]} pull request " + format_prnumber(data) + ": " + \
+            format_prtitle(data) + " (" + format_prhead(data) + " \u{2192} " + \
+            format_prbase(data) + ") @ " + format_prurl(data)
+end
+
+def get_pull_request_review_comment(data)
+  repo = data["repository"]["name"]
+
+  say repo, "#{Cinch::Formatting.format(:Black, '[')}" + format_repo(data) + \
+            "#{Cinch::Formatting.format(:Black, ']')} " + format_author(data) + \
+            " #{data["action"]} PR diff comment on " + format_prnumber(data) + ": " + \
+            format_prtitle(data) + " (" + format_prhead(data) + " \u{2192} " + \
+            format_prbase(data) + ") @ " + format_commenturl(data)
 end
 
 def get_push(data)
   repo = data["repository"]["name"]
+
+  if data["ref"].include? "refs/tags"
+    return
+  end
 
   # sort commits by timestamp
   data["commits"].sort! do |a,b|
@@ -249,6 +288,28 @@ def get_push(data)
 #  data.inspect
 end
 
+# ----------------------
+def format_release_author(data)
+  format_author(data)
+end
+
+def format_release_tag_name(data)
+  Cinch::Formatting.format(:orange, "#{data["release"]["tag_name"]}")
+end
+
+def format_release_name(data)
+  Cinch::Formatting.format(:teal, "#{data["release"]["name"]}")
+end
+
+def get_release(data)
+  repo = data["repository"]["name"]
+
+  say repo, "#{Cinch::Formatting.format(:Black, '[')}" + format_repo(data) + \
+            "#{Cinch::Formatting.format(:Black, ']')} " + format_release_author(data) + \
+            " #{data["action"]} release " + format_release_tag_name(data) + " " + \
+            format_release_name(data) + " @ " + format_releaseurl(data)
+end
+
 #############
 # Webserver #
 #############
@@ -259,6 +320,7 @@ configure do
   set :logging, false
   set :lock, true
   set :run, true
+  disable :traps
 end
 
 get "/" do
