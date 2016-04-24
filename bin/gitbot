@@ -137,11 +137,18 @@ def format_issueurl(data)
   Git.io.generate data["issue"]["html_url"]
 end
 
+def format_commenturl(data)
+  Git.io.generate data["comment"]["html_url"]
+end
+
 ##################
 # Received Hooks #
 ##################
 
 ## TODO: Add more hooks, add placeholders, consolidate repo variable
+
+def get_ping(data)
+end
 
 def get_create(data)
   halt 501, "Not yet implemented, how pitiful."
@@ -155,7 +162,19 @@ end
 def get_issues(data)
   repo = data["repository"]["name"]
 
-  say repo, "#{Cinch::Formatting.format(:Black, '[')}" + format_repo(data) + "#{Cinch::Formatting.format(:Black, ']')} " + format_author(data) + " #{data["action"]} issue " + format_issuenumber(data) + ": " + format_issuetitle(data) + " @ " + format_issueurl(data)
+  say repo, "#{Cinch::Formatting.format(:Black, '[')}" + format_repo(data) + \
+            "#{Cinch::Formatting.format(:Black, ']')} " + format_author(data) + \
+            " #{data["action"]} issue " + format_issuenumber(data) + ": " + \
+            format_issuetitle(data) + " @ " + format_issueurl(data)
+end
+
+# {created, edited, deleted} issue_comment
+def get_issue_comment(data)
+  repo = data["repository"]["name"]
+  say repo, "#{Cinch::Formatting.format(:Black, '[')}" + format_repo(data) + \
+            "#{Cinch::Formatting.format(:Black, ']')} " + format_author(data) + \
+            " #{data["action"]} a comment on issue " + format_issuenumber(data) + ": " + \
+            format_issuetitle(data) + " @ " + format_commenturl(data)
 end
 
 def get_pull_request(data)
@@ -186,7 +205,10 @@ def get_push(data)
   end
 
   # output first 5 commits
-  say repo, "#{Cinch::Formatting.format(:Black, '[')}" + format_repo(data) + "#{Cinch::Formatting.format(:Black, ']')} " + format_author(data) + " pushed #{data["commits"].length} new commit#{data["commits"].count == 1 ? '' : 's'} to " + format_branch(data) + ": " + format_commiturl(data)
+  say repo, "#{Cinch::Formatting.format(:Black, '[')}" + format_repo(data) + \
+            "#{Cinch::Formatting.format(:Black, ']')} " + format_author(data) + \
+            " pushed #{data["commits"].length} new commit#{data["commits"].count == 1 ? '' : 's'} to " + \
+            format_branch(data) + ": " + format_commiturl(data)
   data["commits"][0..4].each do |c|
     message = c["message"]
 
