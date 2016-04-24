@@ -24,6 +24,7 @@ $config = YAML.load_file config_file
 $bot = Cinch::Bot.new do
   configure do |c|
     c.nick = $config["irc"]["nick"]
+    c.password = $config["irc"]["password"]
     c.user = $config["irc"]["user"]
     c.realname = $config["irc"]["realname"]
     c.server = $config["irc"]["server"]
@@ -216,7 +217,7 @@ configure do
 end
 
 get "/" do
-  "GitBot lives here. Direct your hooks to /github."
+  ""
 end
 
 post "/github" do
