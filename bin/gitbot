@@ -101,6 +101,10 @@ def format_cauthor(c)
   Cinch::Formatting.format(:silver, "#{c["author"]["username"]}")
 end
 
+def format_prauthor(data)
+  format_author(data)
+end
+
 def format_prtitle(data)
   Cinch::Formatting.format(:teal, "#{data["pull_request"]["title"]}")
 end
@@ -123,6 +127,14 @@ end
 
 def format_issuetitle(data)
   Cinch::Formatting.format(:teal, "#{data["issue"]["title"]}")
+end
+
+def format_ref(data)
+  Cinch::Formatting.format(:orange, "#{data["ref"]}")
+end
+
+def format_ref_type(data)
+  Cinch::Formatting.format(:teal, "#{data["ref_type"]}")
 end
 
 def format_stargazers_count(data)
@@ -177,9 +189,11 @@ end
 def format_commit_id(data)
   Cinch::Formatting.format(:grey, "#{data["comment"]["commit_id"][0..7]}")
 end
+
 def format_path(data)
   Cinch::Formatting.format(:teal, "#{data["comment"]["path"]}")
 end
+
 def get_commit_comment(data)
   repo = data["repository"]["name"]
 
@@ -189,15 +203,34 @@ def get_commit_comment(data)
             format_commit_id(data) + ":" + \
             format_path(data) + " @ " + format_commenturl(data)
 end
+
+def get_pull_request_review_comment(data)
+  repo = data["repository"]["name"]
+
+  say repo, "#{Cinch::Formatting.format(:Black, '[')}" + format_repo(data) + \
+            "#{Cinch::Formatting.format(:Black, ']')} " + format_author(data) + \
+            " #{data["action"]} diff comment on pull request " + format_prnumber(data) + ": " + \
+            format_prtitle(data) + " (" + format_prhead(data) + " \u{2192} " + \
+            format_prbase(data) + "):" + format_path(data) + " @ " + format_commenturl(data)
+end
 #------------------------------
+
+def create_delete_common(data, action)
+  repo = data["repository"]["name"]
+  say repo, "#{Cinch::Formatting.format(:Black, '[')}" + format_repo(data) + \
+            "#{Cinch::Formatting.format(:Black, ']')} " + format_author(data) + \
+            " #{action} " + format_ref_type(data) + " " + format_ref(data)
+end
+
 def get_create(data)
-  halt 501, "Not yet implemented, how pitiful."
+  create_delete_common(data, "created")
 end
 
 def get_delete(data)
-  halt 501, "Not yet implemented, how pitiful."
+  create_delete_common(data, "deleted")
 end
 
+#------------------------------
 # {opened,closed,reopened} issue
 def get_issues(data)
   repo = data["repository"]["name"]
@@ -213,7 +246,7 @@ def get_issue_comment(data)
   repo = data["repository"]["name"]
   say repo, "#{Cinch::Formatting.format(:Black, '[')}" + format_repo(data) + \
             "#{Cinch::Formatting.format(:Black, ']')} " + format_author(data) + \
-            " #{data["action"]} comment on #{data["issue"].has_key?("pull_request") ? 'PR' : 'issue'} " + \
+            " #{data["action"]} comment on #{data["issue"].has_key?("pull_request") ? 'pull request' : 'issue'} " + \
             format_issuenumber(data) + ": " + \
             format_issuetitle(data) + " @ " + format_commenturl(data)
 end
@@ -228,20 +261,16 @@ def get_pull_request(data)
             format_prbase(data) + ") @ " + format_prurl(data)
 end
 
-def get_pull_request_review_comment(data)
-  repo = data["repository"]["name"]
-
-  say repo, "#{Cinch::Formatting.format(:Black, '[')}" + format_repo(data) + \
-            "#{Cinch::Formatting.format(:Black, ']')} " + format_author(data) + \
-            " #{data["action"]} PR diff comment on " + format_prnumber(data) + ": " + \
-            format_prtitle(data) + " (" + format_prhead(data) + " \u{2192} " + \
-            format_prbase(data) + ") @ " + format_commenturl(data)
-end
-
 def get_push(data)
   repo = data["repository"]["name"]
 
-  if data["ref"].include? "refs/tags"
+  if data["created"] || data["deleted"]
+    # get_create / get_delete already handle this
+
+    #action = data["created"] ? "created" : "deleted"
+    #say repo, "#{Cinch::Formatting.format(:Black, '[')}" + format_repo(data) + \
+    #        "#{Cinch::Formatting.format(:Black, ']')} " + format_author(data) + \
+    #        " #{action} " + format_ref(data)
     return
   end
 
