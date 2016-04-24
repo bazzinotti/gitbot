@@ -1,3 +1,7 @@
-source "http://rubygems.org"
+# A sample Gemfile
+source "https://rubygems.org"
 
-gemspec
+gem 'cinch'
+gem 'sinatra'
+gem 'json'
+gem 'gitio'
