@@ -3,26 +3,30 @@ PATH
   specs:
     gitbot (1.0.0)
       cinch (~> 2.0.0)
+      gitio
       json
       sinatra (~> 1.1.0)
 
 GEM
   remote: http://rubygems.org/
   specs:
-    cinch (1.0.2)
-    json (1.4.6)
-    rack (1.2.1)
-    sinatra (1.1.0)
+    cinch (2.0.12)
+    gitio (0.0.2)
+      thor
+    json (1.8.3)
+    rack (1.6.4)
+    sinatra (1.1.4)
       rack (~> 1.1)
-      tilt (~> 1.1)
-    tilt (1.1)
+      tilt (>= 1.2.2, < 2.0)
+    thor (0.19.1)
+    tilt (1.4.1)
 
 PLATFORMS
   ruby
 
 DEPENDENCIES
-  bundler (~> 1.0.0)
-  cinch (~> 2.0.0)
+  bundler (>= 1.0.0)
   gitbot!
-  json
-  sinatra (~> 1.1.0)
+
+BUNDLED WITH
+   1.11.2

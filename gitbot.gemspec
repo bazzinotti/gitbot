@@ -30,7 +30,7 @@ Gem::Specification.new do |s|
   s.add_runtime_dependency(%q<json>, [">= 0"])
   s.add_runtime_dependency(%q<gitio>, [">= 0"])
 
-  s.add_development_dependency(%q<bundler>, ["~> 1.0.0"])
+  s.add_development_dependency(%q<bundler>, [">= 1.0.0"])
 
   s.required_ruby_version = Gem::Requirement.new(">= 1.9.1")
 end
