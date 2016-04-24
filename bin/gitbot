@@ -29,7 +29,9 @@ $bot = Cinch::Bot.new do
     c.realname = $config["irc"]["realname"]
     c.server = $config["irc"]["server"]
     c.port = $config["irc"]["port"]
-    c.channels = $config["irc"]["channels"]
+    c.channels = $config["irc"]["channels"].map! do |chan|
+      chan + ENV['GITBOT_IRC_CHAN_EXT'].to_s # $config["irc"]["channel-ext"]
+    end
   end
 end
 
@@ -149,6 +151,7 @@ def get_delete(data)
   halt 501, "Not yet implemented, how pitiful."
 end
 
+# {opened,closed,reopened} issue
 def get_issues(data)
   repo = data["repository"]["name"]
 
