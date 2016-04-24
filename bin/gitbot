@@ -349,7 +349,6 @@ configure do
   set :logging, false
   set :lock, true
   set :run, true
-  disable :traps
 end
 
 get "/" do
