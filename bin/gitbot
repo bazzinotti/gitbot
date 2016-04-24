@@ -118,6 +118,10 @@ def format_issuetitle(data)
   Cinch::Formatting.format(:teal, "#{data["issue"]["title"]}")
 end
 
+def format_stargazers_count(data)
+  Cinch::Formatting.format(:orange, "#{data["repository"]["stargazers_count"]}")
+end
+
 #####################
 # Git.io generation #
 #####################
@@ -148,6 +152,15 @@ end
 ## TODO: Add more hooks, add placeholders, consolidate repo variable
 
 def get_ping(data)
+end
+
+# the Github Webhook API only notifies when a user starts a stargaze
+def get_watch(data)
+  repo = data["repository"]["name"]
+
+  say repo, "#{Cinch::Formatting.format(:Black, '[')}" + format_repo(data) + \
+            "#{Cinch::Formatting.format(:Black, ']')} " + format_author(data) + \
+            " #{data["action"]} stargazing. Total: " + format_stargazers_count(data)
 end
 
 def get_create(data)
