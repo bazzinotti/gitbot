@@ -306,7 +306,7 @@ def get_push(data)
       message1 = message
     end
 
-    say repo, format_repo(data) + "/" + format_branch(data) + " " + format_commit(c) + " " + format_cauthor(c) + ": #{message1}"
+    say repo, " " + format_repo(data) + "/" + format_branch(data) + " " + format_commit(c) + " " + format_cauthor(c) + ": #{message1}"
   end
 
   if data["commits"].length-5 > 0
