@@ -7,6 +7,22 @@ require "yaml"
 require "json"
 require_relative "git-io"
 require 'openssl'
+require 'redis'
+
+class Bot < Cinch::Bot
+
+  def redis=(redis) @redis = redis end
+  def redis() @redis end
+
+  def admins
+    @admins ||= $config["irc"]['admins']
+  end
+
+  def admin?(user)
+    user.refresh
+    admins.include?(user.authname)
+  end
+end
 
 ###################
 # Loading Configs #
@@ -25,7 +41,7 @@ end
 
 $config = YAML.load_file config_file
 
-$bot = Cinch::Bot.new do
+$bot = Bot.new do
   configure do |c|
     c.nick = $config["irc"]["nick"]
     c.password = $config["irc"]["password"]
@@ -42,13 +58,20 @@ $bot = Cinch::Bot.new do
     $config["irc"]["plugins"].each do |p|
       require p[0]
       if p[1]
-        c.plugins.plugins << Object.const_get(p[1])
+        c.plugins.plugins << Object.const_get("Cinch::Plugins::" + p[1])
       end
     end
 
     c.plugins.prefix = $config["irc"]["prefix"] if $config["irc"].has_key?("prefix")
+
+    c.plugins.options[Cinch::Plugins::MessageHistory] = {
+      :user_messages => 10,
+      :channel_messages => 25
+    }
   end
 end
+
+$bot.redis = Redis.new(:host => "localhost", :port => 6379)
 
 
 Thread.new do

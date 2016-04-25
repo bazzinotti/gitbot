@@ -1,0 +1,1 @@
+../lib/cinch/plugins/github.rb
