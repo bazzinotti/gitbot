@@ -13,13 +13,12 @@ irc:
         - "#chan2"
 
     plugins:
-        - ["./plugins/github", "Cinch::Plugins::Github"]
-        - ["./plugins/title", "Cinch::Plugins::Title"]
-        - ["./plugins/word_game", "Cinch::Plugins::WordGame"]
-        - ["./plugins/help", "Cinch::Help"]
-        - ["./plugins/seen", "Cinch::Seen"]
-#    plugins_options:
-# not yet impl'd
+        - ["./plugins/plugin1", "Plugin1"]
+
+    plugin_options:
+        Plugin1:
+            option1: 10
+            option2: 25
 
 # HTTP server settings
 http:

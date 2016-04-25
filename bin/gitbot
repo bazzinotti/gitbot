@@ -64,10 +64,12 @@ $bot = Bot.new do
 
     c.plugins.prefix = $config["irc"]["prefix"] if $config["irc"].has_key?("prefix")
 
-    c.plugins.options[Cinch::Plugins::MessageHistory] = {
-      :user_messages => 10,
-      :channel_messages => 25
-    }
+    $config["irc"]["plugin_options"].each do |key, value|
+      hash = {}
+      value.each { |k, v| hash[k.to_sym] = v }
+      c.plugins.options[Object.const_get("Cinch::Plugins::#{key}")] = hash
+    end
+    puts c.plugins.options
   end
 end
 
