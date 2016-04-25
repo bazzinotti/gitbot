@@ -45,6 +45,8 @@ $bot = Cinch::Bot.new do
         c.plugins.plugins << Object.const_get(p[1])
       end
     end
+
+    c.plugins.prefix = $config["irc"]["prefix"] if $config["irc"].has_key?("prefix")
   end
 end
 
