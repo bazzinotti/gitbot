@@ -14,7 +14,7 @@ w cheat
 
   def initialize(*args)
     super
-    @dict = Dictionary.from_file("/home/bazz/words")
+    @dict = Dictionary.from_file(config[:dict] || "/etc/dictionaries-common/words")
   end
 
   def response(m)
@@ -24,7 +24,7 @@ w cheat
   match(/w start/, method: :start)
   def start(m)
     @game = Game.new(@dict)
-    response(m).start_game
+    response(m).start_game @bot.config.plugins.prefix
   end
 
   match(/w cheat/, method: :cheat)
@@ -95,8 +95,8 @@ w cheat
       output.reply("I haven't started a word game yet. Use `#{prefix}w start` to start one.")
     end
 
-    def start_game
-      output.reply("Starting a new word game. Make a guess.")
+    def start_game(prefix)
+      output.reply("Let's play! Make a `#{prefix}guess`")
     end
 
     def game_won
