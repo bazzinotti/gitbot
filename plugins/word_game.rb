@@ -3,12 +3,18 @@ require 'cinch'
 class Cinch::Plugins::WordGame
   include Cinch::Plugin
 
+  Lock_str = "w lock"
+  Unlock_str = "w unlock"
+  Start_str = "w start"
+  Guess_str = "guess"
+  Cheat_str = "w cheat"
+
   set :help, <<-HELP
-w new
+#{Start_str}
   Start a new game, with the bot picking a word
-guess <word>
+#{Guess_str} <word>
   Guess a word
-w cheat
+#{Cheat_str}
   If you simply can't carry on, use this to find out the word (and end the game)
   HELP
 
@@ -21,7 +27,8 @@ w cheat
 
   hook :pre, method: :locked
   def locked(m)
-    m.message.split[1].include?("lock") ? true : !@locked
+    s = m.message.split[1]
+    s == Lock_str || s == Unlock_str ? true : !@locked
   end
 
 
@@ -29,21 +36,21 @@ w cheat
     Response.new(m, @game)
   end
 
-  match(/w lock/, method: :lock)
+  match(/#{Lock_str}/, method: :lock)
   def lock(m)
     return if !@bot.admin?(m.user) || @locked
     @locked = true
     m.reply("Game locked! No more guesses!")
   end
 
-  match(/w unlock/, method: :unlock)
+  match(/#{Unlock_str}/, method: :unlock)
   def unlock(m)
     return if !@bot.admin?(m.user) || !@locked
     @locked = false
     m.reply "Let the games continue!!"
   end
 
-  match(/w new/, method: :start)
+  match(/#{Start_str}/, method: :start)
   def start(m)
     if @game
       m.reply "There's already a game running!"
@@ -53,7 +60,7 @@ w cheat
     end
   end
 
-  match(/w cheat/, method: :cheat)
+  match(/#{Cheat_str}/, method: :cheat)
   def cheat(m)
     if @game
       response(m).cheat
@@ -63,7 +70,7 @@ w cheat
     end
   end
 
-  match(/guess (\S+)/, method: :guess)
+  match(/#{Guess_str} (\S+)/, method: :guess)
   def guess(m, word)
     if @game
       if @game.guess(word, response(m))
@@ -123,11 +130,12 @@ w cheat
     end
 
     def game_not_started(prefix)
-      output.reply("I haven't started a word game yet. Use `#{prefix}w start` to start one.")
+      output.reply("I haven't started a word game yet. Use " \
+        "`#{prefix}#{Cinch::Plugins::WordGame::Start_str}` to start one.")
     end
 
     def start_game(prefix)
-      output.reply("Let's play! Make a `#{prefix}guess`")
+      output.reply("Let's play! Make a `#{prefix}#{Cinch::Plugins::WordGame::Guess_str}`")
     end
 
     def game_won
