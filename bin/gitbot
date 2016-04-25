@@ -38,6 +38,13 @@ $bot = Cinch::Bot.new do
       mappings[chan] = chan + ENV['GITBOT_IRC_CHAN_EXT'].to_s # $config["irc"]["channel-ext"]
     end
     remap_chanfilters($config["filters"], mappings)
+
+    $config["irc"]["plugins"].each do |p|
+      require p[0]
+      if p[1]
+        c.plugins.plugins << Object.const_get(p[1])
+      end
+    end
   end
 end
 
