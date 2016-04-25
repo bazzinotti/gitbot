@@ -4,7 +4,7 @@ class Cinch::Plugins::WordGame
   include Cinch::Plugin
 
   set :help, <<-HELP
-w start
+w new
   Start a new game, with the bot picking a word
 guess <word>
   Guess a word
@@ -15,21 +15,52 @@ w cheat
   def initialize(*args)
     super
     @dict = Dictionary.from_file(config[:dict] || "/etc/dictionaries-common/words")
+    @locked = false
+    @game = nil
   end
+
+  hook :pre, method: :locked
+  def locked(m)
+    m.message.split[1].include?("lock") ? true : !@locked
+  end
+
 
   def response(m)
     Response.new(m, @game)
   end
 
-  match(/w start/, method: :start)
+  match(/w lock/, method: :lock)
+  def lock(m)
+    return if !@bot.admin?(m.user) || @locked
+    @locked = true
+    m.reply("Game locked! No more guesses!")
+  end
+
+  match(/w unlock/, method: :unlock)
+  def unlock(m)
+    return if !@bot.admin?(m.user) || !@locked
+    @locked = false
+    m.reply "Let the games continue!!"
+  end
+
+  match(/w new/, method: :start)
   def start(m)
-    @game = Game.new(@dict)
-    response(m).start_game @bot.config.plugins.prefix
+    if @game
+      m.reply "There's already a game running!"
+    else
+      @game = Game.new(@dict)
+      response(m).start_game @bot.config.plugins.prefix
+    end
   end
 
   match(/w cheat/, method: :cheat)
   def cheat(m)
-    response(m).cheat if @game
+    if @game
+      response(m).cheat
+      @game = nil
+    else
+      response(m).game_not_started @bot.config.plugins.prefix
+    end
   end
 
   match(/guess (\S+)/, method: :guess)
@@ -104,11 +135,11 @@ w cheat
     end
 
     def cheat
-      output.reply "You want to cheat after #{game.number_of_guesses}? Fine. The word is #{game.word}. #{user}: you suck."
+      output.reply "You want to cheat after #{game.number_of_guesses_phrase}? Fine. The word is #{game.word}. #{user}: you suck."
     end
 
     def wrong_word(before_or_after)
-      output.reply(%Q{My word comes #{before_or_after} "#{game.last_guess}". You've had #{game.number_of_guesses} guesses.})
+      output.reply(%Q{My word comes #{before_or_after} "#{game.last_guess}". You've had #{game.number_of_guesses_phrase}.})
     end
 
     def invalid_word
