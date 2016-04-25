@@ -1,3 +1,5 @@
+# Relies on message_history plugin
+
 require 'cinch'
 require 'json'
 
