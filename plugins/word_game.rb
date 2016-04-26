@@ -27,7 +27,7 @@ class Cinch::Plugins::WordGame
 
   hook :pre, method: :locked
   def locked(m)
-    s = m.message.split[1]
+    s = m.message[1..-1]  # remove prefix
     s == Lock_str || s == Unlock_str ? true : !@locked
   end
 
@@ -40,7 +40,7 @@ class Cinch::Plugins::WordGame
   def lock(m)
     return if !@bot.admin?(m.user) || @locked
     @locked = true
-    m.reply("Game locked! No more guesses!")
+    m.reply("Don't send me 500 emails! Game locked!")
   end
 
   match(/#{Unlock_str}/, method: :unlock)
