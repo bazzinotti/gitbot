@@ -17,6 +17,11 @@ module Cinch
       def execute(m, channel, message)
         Channel(channel).send(message) if @bot.admin?(m.user)
       end
+
+      match(/action (\S+) (.+)/, method: :action)
+      def action(m, channel, message)
+        Channel(channel).action(message) if @bot.admin?(m.user)
+      end
     end
   end
 end
