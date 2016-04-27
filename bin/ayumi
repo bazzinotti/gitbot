@@ -1,0 +1,98 @@
+#!/usr/bin/env ruby
+
+require "date"
+require "cinch"
+require "yaml"
+require "json"
+require 'openssl'
+require 'redis'
+
+class Bot < Cinch::Bot
+  attr_reader :yml_config
+
+  def redis=(redis) @redis = redis end
+
+  def redis() @redis end
+
+  def admins
+    @admins ||= @yml_config['admins']
+  end
+
+  def admin?(user)
+    user.refresh
+    admins.include?(user.authname)
+  end
+end
+
+module Cinch
+  module Plugin
+    module ClassMethods
+      def enable_acl
+        hook(:pre, :method => lambda {|m| check_acl(m)})
+      end
+    end
+
+    def check_acl(m)
+      @bot.yml_config["plugins"].each do |k, v|
+        if v && v.has_key?("exclude") && self.class.plugin_name == k.downcase
+            v["exclude"].each { |c| return false if m.channel.to_s == c }
+        end
+      end
+    end
+  end
+end
+
+###################
+# Loading Configs #
+###################
+
+def remap_chanfilters(cf, mappings)
+  cf.keys.each { |k| cf[mappings[k]] = cf.delete(k) if mappings[k] }
+end
+
+bot = Bot.new do
+  config_file = ARGV.shift || "config.yml"
+  if not File.exist? config_file
+    puts "Can't find config file #{config_file}"
+    puts "Either create it or specify another config file with: #{File.basename $0} [filename]"
+    exit
+  end
+  config = YAML.load_file config_file
+  @yml_config = config
+
+  configure do |c|
+    c.nick = config["nick"]
+    c.password = config["password"]
+    c.user = config["user"]
+    c.realname = config["realname"]
+    c.server = config["server"]
+    c.port = config["port"]
+    mappings = {}
+    c.channels = config["channels"].map! do |chan|
+      mappings[chan] = chan + ENV['GITBOT_IRC_CHAN_EXT'].to_s # config["channel-ext"]
+    end
+    remap_chanfilters(config["plugins"]["Github"]["options"]["filters"], mappings)
+
+    config["plugins"].each do |k, v|
+      require_relative "../lib/cinch/plugins/" + k.gsub(/([^\^])([A-Z])/,'\1_\2').downcase 
+      cls = Object.const_get("Cinch::Plugins::" + k)
+      c.plugins.plugins << cls
+
+      if v && v.has_key?("options")
+        o = {}
+        v["options"].each { |k, v| o[k.to_sym] = v }
+        c.plugins.options[cls] = o
+      end
+
+      cls.enable_acl
+    end
+
+    c.plugins.prefix = config["prefix"] if config.has_key?("prefix")
+  end
+end
+
+bot.redis = Redis.new(:host => "localhost", :port => 6379)
+
+bot.start
+
+
