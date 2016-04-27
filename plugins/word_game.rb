@@ -20,7 +20,7 @@ class Cinch::Plugins::WordGame
 
   def initialize(*args)
     super
-    @dict = Dictionary.from_file(config[:dict] || "/etc/dictionaries-common/words")
+    @dict = Dictionary.from_file(config[:dict] || "/usr/share/dict/words")
     @locked = false
     @game = nil
   end

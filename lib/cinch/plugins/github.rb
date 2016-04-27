@@ -1,7 +1,8 @@
 require 'cinch'
 require 'net/http'
 require 'json'
-# require 'git-io'
+#require 'sinatra/base'
+#require 'git-io'
 
 module Cinch::Plugins
   class Github
@@ -14,7 +15,7 @@ ghuser <user>
  	Sees if <user> exists, and if so provides URL
   	HELP
 
-    @@base_url = "https://api.github.com"
+    Base_url = "https://api.github.com"
 
     match(/ghuser (\S+)/, method: :ghuser)
     match(/ghrepo (\S+) (\S+)/, method: :ghrepo)
@@ -24,7 +25,7 @@ ghuser <user>
     end
 
     def ghuser(m, user)
-    	uri = URI(@@base_url + "/users/" + user)
+    	uri = URI(Base_url + "/users/" + user)
 			response = Net::HTTP.get(uri)
 			data = JSON.parse(response)
 			if not_found(data)
@@ -37,7 +38,7 @@ ghuser <user>
     end
 
     def ghrepo(m, user, repo)
-    	uri = URI(@@base_url + "/repos/" + user + "/" + repo)
+    	uri = URI(Base_url + "/repos/" + user + "/" + repo)
 			response = Net::HTTP.get(uri)
 			data = JSON.parse(response)
 			if not_found(data)
