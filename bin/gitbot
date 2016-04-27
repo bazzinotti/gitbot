@@ -11,7 +11,7 @@ require 'redis'
 
 class Bot < Cinch::Bot
   def redis=(redis) @redis = redis end
-    
+
   def redis() @redis end
 
   def admins
@@ -21,6 +21,24 @@ class Bot < Cinch::Bot
   def admin?(user)
     user.refresh
     admins.include?(user.authname)
+  end
+end
+
+module Cinch
+  module Plugin
+    module ClassMethods
+      def enable_acl
+        hook(:pre, :method => lambda {|m| check_acl(m)})
+      end
+    end
+
+    def check_acl(m)
+      $config["irc"]["plugin_channel_exclude"].each do |k, v|
+        if self.class.plugin_name == k.downcase
+          v.each { |c| return false if m.channel.to_s == c }
+        end
+      end
+    end
   end
 end
 
@@ -58,7 +76,9 @@ $bot = Bot.new do
     $config["irc"]["plugins"].each do |p|
       require p[0]
       if p[1]
-        c.plugins.plugins << Object.const_get("Cinch::Plugins::" + p[1])
+        cls = Object.const_get("Cinch::Plugins::" + p[1])
+        c.plugins.plugins << cls
+        cls.enable_acl
       end
     end
 
@@ -67,9 +87,9 @@ $bot = Bot.new do
     $config["irc"]["plugin_options"].each do |key, value|
       hash = {}
       value.each { |k, v| hash[k.to_sym] = v }
-      c.plugins.options[Object.const_get("Cinch::Plugins::#{key}")] = hash
+      cls = Object.const_get("Cinch::Plugins::#{key}")
+      c.plugins.options[cls] = hash
     end
-    puts c.plugins.options
   end
 end
 
