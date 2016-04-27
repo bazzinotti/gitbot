@@ -1,6 +1,6 @@
 require 'cinch'
-require 'open-uri'
-require 'nokogiri'
+#require 'open-uri'
+#require 'nokogiri'
 require 'cgi'
 
 module Cinch
