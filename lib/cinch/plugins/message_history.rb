@@ -18,11 +18,11 @@ module Cinch
         @bot.redis.lpush "#{m.channel}:#{m.user.nick}:messages", json
         @bot.redis.lpush "#{m.channel}:messages", json
 
-        if @bot.redis.llen("#{m.channel}:#{m.user.nick}:messages").to_i > config[:user_messages] || 10
+        if @bot.redis.llen("#{m.channel}:#{m.user.nick}:messages").to_i > config[:user_messages].to_i || 10
           @bot.redis.rpop "#{m.channel}:#{m.user.nick}:messages"
         end
 
-        if @bot.redis.llen("#{m.channel}:messages").to_i > config[:channel_messages] || 25
+        if @bot.redis.llen("#{m.channel}:messages").to_i > config[:channel_messages].to_i || 25
           @bot.redis.rpop "#{m.channel}:messages"
         end
       end
