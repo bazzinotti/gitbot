@@ -1,13 +1,16 @@
 require 'cinch'
+require_relative 'highscores'
 
 class Cinch::Plugins::WordGame
-  include Cinch::Plugin
-
   Lock_str = "w lock"
   Unlock_str = "w unlock"
   Start_str = "w start"
   Guess_str = "guess"
   Cheat_str = "w cheat"
+  Highscores_str = "w scoreboard"
+
+  include Cinch::Plugin
+  include Cinch::Plugin::Highscores
 
   set :help, <<-HELP
 #{Start_str}
@@ -16,6 +19,8 @@ class Cinch::Plugins::WordGame
   Guess a word
 #{Cheat_str}
   If you simply can't carry on, use this to find out the word (and end the game)
+#{Highscores_str} <num=5>
+  Print the top <num> high scores.
   HELP
 
   def initialize(*args)
@@ -65,6 +70,7 @@ class Cinch::Plugins::WordGame
     if @game
       response(m).cheat
       @game = nil
+      inc_score(m.user)
     else
       response(m).game_not_started @bot.config.plugins.prefix
     end
@@ -75,11 +81,13 @@ class Cinch::Plugins::WordGame
     if @game
       if @game.guess(word, response(m))
         @game = nil
+        inc_score(m.user)
       end
     else
       response(m).game_not_started @bot.config.plugins.prefix
     end
   end
+
 
   class Game
     attr_reader :number_of_guesses, :last_guess, :word
