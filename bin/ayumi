@@ -42,6 +42,16 @@ module Cinch
   end
 end
 
+# This is so Plugin Classes can access the prefix configuration and create
+# custom 'match' cases or custom 'set :prefix' with it.
+module Cinch
+  module Plugins
+    class << self
+      attr_accessor :prefix   # Written from config-load routine
+    end
+  end
+end
+
 ###################
 # Loading Configs #
 ###################
@@ -80,6 +90,10 @@ bot = Bot.new do
     end
     #remap_chanfilters(config["plugins"]["Github"]["options"]["filters"], mappings)
 
+    prefix = config["prefix"] || '!'
+    c.plugins.prefix = prefix
+    Cinch::Plugins.prefix = prefix
+
     config["plugins"].each do |k, v|
       require_relative "../lib/cinch/plugins/" + k.gsub(/([^\^])([A-Z])/,'\1_\2').downcase 
       cls = Object.const_get("Cinch::Plugins::" + k)
@@ -93,8 +107,6 @@ bot = Bot.new do
 
       cls.enable_acl
     end
-
-    c.plugins.prefix = config["prefix"] if config.has_key?("prefix")
   end
 
 end
