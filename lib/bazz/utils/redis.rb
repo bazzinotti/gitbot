@@ -12,7 +12,7 @@ module Bazz
         end
 
         def self.inc_score(key, val)
-          Redis.redis.zincrby(highscores, 1, user)
+          Redis.redis.zincrby(key, 1, val)
         end
       end
     end
