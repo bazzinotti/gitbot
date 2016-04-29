@@ -1,5 +1,6 @@
 require 'cinch'
 require_relative 'utils/highscores'
+require_relative 'utils/suggestions'
 
 class Cinch::Plugins::WordGame
   Lock_str = "w lock"
@@ -8,9 +9,11 @@ class Cinch::Plugins::WordGame
   Guess_str = "guess"
   Cheat_str = "w cheat"
   Highscores_str = "w scoreboard"
+  Suggest_str = "w suggest"
 
   include Cinch::Plugin
-  include Cinch::Plugins::Utils::Highscores
+  include Cinch::Plugins::Utils::HighScores
+  include Cinch::Plugins::Utils::Suggestions
 
   set :help, <<-HELP
 #{Start_str}
@@ -21,6 +24,8 @@ class Cinch::Plugins::WordGame
   If you simply can't carry on, use this to find out the word (and end the game)
 #{Highscores_str} <num=5>
   Print the top <num> high scores.
+#{Suggest_str} <word>
+  Suggest a word be added to dictionary
   HELP
 
   def initialize(*args)
@@ -70,7 +75,7 @@ class Cinch::Plugins::WordGame
     if @game
       response(m).cheat
       @game = nil
-      # inc_score(m.user)
+      # inc_highscore(m.user)
     else
       response(m).game_not_started @bot.config.plugins.prefix
     end
@@ -81,16 +86,11 @@ class Cinch::Plugins::WordGame
     if @game
       if @game.guess(word, response(m))
         @game = nil
-        inc_score(m.user)
+        inc_highscore(m.user)
       end
     else
       response(m).game_not_started @bot.config.plugins.prefix
     end
-  end
-
-  def suggestions(n)
-    response = ""
-
   end
 
 

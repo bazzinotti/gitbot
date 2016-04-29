@@ -2,17 +2,17 @@ require 'redis'
 
 module Cinch::Plugins
   module Utils
-    module HighScores
+    module Suggestions
       module BackendInterface
-        def highscore_table
+        def suggestions_table
           raise NotImplementedError, "Implement this method in a child class"
         end
 
-        def inc_highscore
+        def inc_suggestion
           raise NotImplementedError, "Implement this method in a child class"
         end
 
-        def top_highscores
+        def top_suggestions
           raise NotImplementedError, "Implement this method in a child class"
         end
       end
@@ -21,17 +21,17 @@ module Cinch::Plugins
         include BackendInterface
         include Bazz::Utils::Scores::Redis
 
-        def highscore_table
-          "#{self.class.plugin_name}:highscores"
+        def suggestions_table
+          "#{self.class.plugin_name}:suggestions"
         end
 
         # increments a user's score by 1
-        def inc_highscore(user)
-          inc_score(highscore_table, user)
+        def inc_suggestion(word)
+          inc_score(suggestions_table, word)
         end
 
-        def top_highscores(n)
-          top_scores(highscore_table, n)
+        def top_suggestions(n)
+          top_scores(suggestions_table, n)
         end
       end
     end
