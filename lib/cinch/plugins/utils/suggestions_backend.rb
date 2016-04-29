@@ -3,6 +3,8 @@ require 'redis'
 module Cinch::Plugins
   module Utils
     module Suggestions
+      include Cinch::Plugins::Utils::Scores
+
       module BackendInterface
         def suggestions_table
           raise NotImplementedError, "Implement this method in a child class"

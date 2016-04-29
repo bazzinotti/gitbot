@@ -5,7 +5,6 @@ require_relative 'highscores_backend'
 module Cinch::Plugins::Utils::HighScores
   # Database backend!!!
   include Redis
-  include Cinch::Plugins::Utils::Scores
 
   def print_highscores(m, n)
     response = ""

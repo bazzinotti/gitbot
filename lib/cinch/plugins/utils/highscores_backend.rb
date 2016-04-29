@@ -3,6 +3,8 @@ require 'redis'
 module Cinch::Plugins
   module Utils
     module HighScores
+      include Cinch::Plugins::Utils::Scores
+
       module BackendInterface
         def highscore_table
           raise NotImplementedError, "Implement this method in a child class"
