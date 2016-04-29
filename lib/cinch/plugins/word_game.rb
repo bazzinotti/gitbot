@@ -1,5 +1,5 @@
 require 'cinch'
-require_relative 'highscores'
+require_relative 'utils/highscores'
 
 class Cinch::Plugins::WordGame
   Lock_str = "w lock"
@@ -10,7 +10,7 @@ class Cinch::Plugins::WordGame
   Highscores_str = "w scoreboard"
 
   include Cinch::Plugin
-  include Cinch::Plugin::Highscores
+  include Cinch::Plugins::Utils::Highscores
 
   set :help, <<-HELP
 #{Start_str}
@@ -70,7 +70,7 @@ class Cinch::Plugins::WordGame
     if @game
       response(m).cheat
       @game = nil
-      inc_score(m.user)
+      # inc_score(m.user)
     else
       response(m).game_not_started @bot.config.plugins.prefix
     end
@@ -86,6 +86,11 @@ class Cinch::Plugins::WordGame
     else
       response(m).game_not_started @bot.config.plugins.prefix
     end
+  end
+
+  def suggestions(n)
+    response = ""
+
   end
 
 

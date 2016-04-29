@@ -2,6 +2,8 @@ require 'cinch'
 require 'net/http'
 require 'json'
 require 'sinatra/base'
+require "date"
+require 'openssl'
 require_relative 'git-io'
 
 module Cinch::Plugins
