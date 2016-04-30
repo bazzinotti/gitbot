@@ -22,6 +22,11 @@ module Cinch::Plugins::Utils::HighScores
 
   def self.included(by)
     by.instance_exec do
+      self.help << <<-HELP
+#{self.const_get :Highscores_str} <num=5>
+  Print the top <num> high scores.
+HELP
+
       match(/#{self.const_get :Highscores_str}\s*([0-9]*)/, method: :print_highscores)
     end
   end

@@ -56,6 +56,10 @@ module Cinch::Plugins::Utils::Suggestions
 
   def self.included(by)
     by.instance_exec do
+      self.help << <<-HELP
+#{self.const_get :Suggest_str} <word>
+  Suggest a word be added to dictionary
+HELP
       match(/#{self.const_get :Suggest_str}\s*(\S*)/, method: :suggest)
     end
   end
