@@ -1,6 +1,8 @@
 require 'cinch'
 require_relative 'utils/highscores'
 require_relative 'utils/suggestions'
+require_relative 'utils/misc'
+require_relative 'wordgames/dict_word.rb'
 
 class Cinch::Plugins::WordGame
   Lock_str = "w lock"
@@ -30,7 +32,10 @@ class Cinch::Plugins::WordGame
 
   def initialize(*args)
     super
-    @dict = Dictionary.from_file(config[:dict] || "/usr/share/dict/words")
+    if !config[:dict]
+      config[:dict] = "/usr/share/dict/words"
+    end
+    @dict = Dictionary.from_file(config[:dict])
     @locked = false
     @game = nil
   end
@@ -170,53 +175,4 @@ class Cinch::Plugins::WordGame
   protected
     attr_reader :user, :output, :game
   end
-
-  class Dictionary
-    def initialize(words)
-      @words = words
-    end
-
-    def self.from_file(filename)
-      words = []
-      File.foreach(filename) do |word|
-        if word[0] == word[0].downcase
-          words << word.strip.gsub(/'.*/, '')
-        end
-      end
-      self.new(words)
-    end
-
-    def random_word
-      @words.sample
-    end
-
-    def word_valid?(word)
-      @words.include? word
-    end
-  end
-
-  class Word
-    attr_accessor :word
-
-    def initialize(word)
-      @word = word
-    end
-
-    def before?(other_word)
-      @word < other_word.downcase
-    end
-
-    def before_or_after(other_word)
-      before?(other_word) ? "before" : "after"
-    end
-
-    def ==(other_word)
-      @word == other_word
-    end
-
-    def to_s
-      @word
-    end
-  end
-
 end

@@ -12,6 +12,10 @@ module Bazz
         def inc_score(table, user)
           raise NotImplementedError, "Implement this method in a child class"
         end
+
+        def rem_score(table, user)
+          raise NotImplementedError, "Implement this method in a child class"
+        end
       end
 
       module Redis
@@ -24,6 +28,10 @@ module Bazz
         # increments a user's score by 1
         def inc_score(table, user)
           ZSet.inc_score(table, user)
+        end
+
+        def rem_score(table, user)
+          ZSet.rem_score(table, user)
         end
       end
 

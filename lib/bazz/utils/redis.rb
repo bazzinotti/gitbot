@@ -14,6 +14,10 @@ module Bazz
         def self.inc_score(key, val)
           Redis.redis.zincrby(key, 1, val)
         end
+
+        def self.rem_score(key, val)
+          Redis.redis.zrem(key, val)
+        end
       end
     end
   end

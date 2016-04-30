@@ -17,6 +17,10 @@ module Cinch::Plugins
         def top_suggestions
           raise NotImplementedError, "Implement this method in a child class"
         end
+
+        def rem_suggestion
+          raise NotImplementedError, "Implement this method in a child class"
+        end
       end
 
       module Redis
@@ -30,6 +34,10 @@ module Cinch::Plugins
         # increments a user's score by 1
         def inc_suggestion(word)
           inc_score(suggestions_table, word)
+        end
+
+        def rem_suggestion(word)
+          rem_score(suggestions_table, word)
         end
 
         def top_suggestions(n)

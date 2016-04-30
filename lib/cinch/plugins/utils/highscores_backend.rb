@@ -14,6 +14,10 @@ module Cinch::Plugins
           raise NotImplementedError, "Implement this method in a child class"
         end
 
+        def rem_highscore
+          raise NotImplementedError, "Implement this method in a child class"
+        end
+
         def top_highscores
           raise NotImplementedError, "Implement this method in a child class"
         end
@@ -30,6 +34,10 @@ module Cinch::Plugins
         # increments a user's score by 1
         def inc_highscore(user)
           inc_score(highscore_table, user)
+        end
+
+        def rem_highscore(user)
+          rem_score(highscore_table, user)
         end
 
         def top_highscores(n)

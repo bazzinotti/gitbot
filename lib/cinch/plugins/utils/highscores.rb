@@ -10,7 +10,8 @@ module Cinch::Plugins::Utils::HighScores
     response = ""
     nn = truncate_n(m,n)
     ts = top_highscores(nn)
-    response << "┌─ " << "Leaderboard (Top #{ts.length})" << " ─── " << "\n"
+    response << "┌─ " << "#{self.class.name.split("::").last} " \
+      "Leaderboard (Top #{ts.length})" << " ─── " << "\n"
     ts.each_with_index do |us, ix|
       num_wins = us[1].to_i
       response << "RANK #{ix+1}) #{us[0]} - #{num_wins} win#{"s" if num_wins > 1}\n"
