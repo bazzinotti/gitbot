@@ -18,6 +18,7 @@ module Cinch
               Nokogiri::HTML(open(url), nil, 'utf-8').title.gsub(/(\r\n?|\n|\t)/, "")
             rescue => e
               puts "Error fetching title: #{e}"
+              return
             end
           }.keep_if { |t| t.length > 0 }
           if titles.any?
