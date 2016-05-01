@@ -1,9 +1,9 @@
 class Dictionary
-  attr_accessor :words
-  #attr_accessor :filename
+  attr_accessor :words, :filename
 
   def initialize(words)
     @words = words
+    @filename = ""
   end
 
   def self.from_file(filename)
@@ -13,7 +13,9 @@ class Dictionary
         words << word.strip.gsub(/'.*/, '')
       #end
     end
-    self.new(words.uniq)
+    dict = self.new(words.uniq)
+    dict.filename = filename
+    dict
   end
 
   def random_word

@@ -16,16 +16,19 @@ module Cinch::Plugins
     Cheat_str = "w cheat"
     Highscores_str = "w scoreboard"
     Suggest_str = "w suggest"
+    Dict_str = "w dict"
 
     include Cinch::Plugin
 
     set :help, <<-HELP
-  #{Start_str}
-    Start a new game, with the bot picking a word
-  #{Guess_str} <word>
-    Guess a word
-  #{Cheat_str}
-    If you simply can't carry on, use this to find out the word (and end the game)
+#{Start_str}
+  Start a new game, with the bot picking a word
+#{Guess_str} <word>
+  Guess a word
+#{Cheat_str}
+  If you simply can't carry on, use this to find out the word (and end the game)
+#{Dict_str} <dict>
+  Specify a dictionary. Run with no parameters to see available dictionaries.
     HELP
 
     include Cinch::Plugins::Utils::HighScores
@@ -33,10 +36,14 @@ module Cinch::Plugins
 
     def initialize(*args)
       super
-      if !config[:dict]
-        config[:dict] = "/usr/share/dict/words"
+      dd = config[:default_dict]
+      if !dd
+        dictfile = "/usr/share/dict/words"
+      else
+        #puts "#{dd} | #{config[:dicts]}"
+        dictfile = config[:dicts][dd]['filename']
       end
-      @dict = Dictionary.from_file(config[:dict])
+      @dict = Dictionary.from_file(dictfile)
       @locked = false
       @game = nil
     end
@@ -47,10 +54,54 @@ module Cinch::Plugins
       s == Lock_str || s == Unlock_str ? true : !@locked
     end
 
-
     def response(m)
       Response.new(m, @game)
     end
+
+    def headline(s)
+      response = ""
+      response << "┌─ " << s << " ─── " << "\n"
+      response
+    end
+
+    def footer
+      response = ""
+      response << "\n" << "└ ─ ─ ─ ─ ─ ─ ─ ─\n"
+      response
+    end
+
+    match(/#{Dict_str}\s*(\S*)/, method: :dict)
+    def dict(m, dict)
+      response = ""
+      dicts = config[:dicts]
+      if dict.empty?
+        # print out available dicts
+        response << headline("Available Dictionaries")
+        dicts.each do |d, filename_desc|
+          puts filename_desc
+          if filename_desc['filename'] == @dict.filename
+            d_str = Cinch::Formatting.format(:bold, d)
+          else
+            d_str = d
+          end
+          response << "#{d_str} - " << filename_desc['desc'] << "\n"
+        end
+        response << footer
+      else
+        valid = false
+        # is this dict valid?
+        dicts.each do |d, filename_desc|
+          if d == dict
+            valid = true
+            @dict = Dictionary.from_file(filename_desc['filename'])
+            response << "Dict \"#{d}\" selected!"
+          end
+        end
+        response << "There is no such dict!" if !valid
+      end
+      m.reply(response)
+    end
+
 
     match(/#{Lock_str}/, method: :lock)
     def lock(m)

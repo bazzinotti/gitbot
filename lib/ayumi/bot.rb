@@ -29,6 +29,8 @@ module Ayumi
               mappings[chan] = chan + ENV['GITBOT_IRC_CHAN_EXT'].to_s # config["channel-ext"]
             end
             #remap_chanfilters(config["plugins"]["Github"]["options"]["filters"], mappings)
+            c.messages_per_second = config['messages_per_second'] if config['messages_per_second']
+            c.server_queue_size = config['server_queue_size'] if config['server_queue_size']
 
             prefix = config["prefix"] || '!'
             c.plugins.prefix = prefix

@@ -43,7 +43,7 @@ module Cinch::Plugins::Utils::Suggestions
 
       # Append it to dictionary
       @dict.words << word
-      File.open(config[:dict], 'a') { |f| f << word << "\n" }
+      File.open(@dict.filename, 'a') { |f| f << word << "\n" }
       m.reply("\"#{word}\" added to dict", true)
     else
       # check if suggestion already exists in dictionary
