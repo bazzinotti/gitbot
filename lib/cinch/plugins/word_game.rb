@@ -5,6 +5,7 @@ require_relative 'utils/misc'
 require_relative 'wordgames/dict_word.rb'
 require_relative 'wordgames/response.rb'
 
+
 class Cinch::Plugins::WordGame
   Lock_str = "w lock"
   Unlock_str = "w unlock"
@@ -98,13 +99,15 @@ class Cinch::Plugins::WordGame
 
 
   class Game
-    attr_reader :number_of_guesses, :last_guess, :word
+    attr_reader :number_of_guesses, :last_guess, :word, :lower_bound, :upper_bound
 
     def initialize(dictionary)
       @dict = dictionary
       @word = Word.new(@dict.random_word)
       puts "Word is #{@word}"
       @number_of_guesses = 0
+      @lower_bound = nil
+      @upper_bound = nil
     end
 
     def guess(word, response)
@@ -132,6 +135,11 @@ class Cinch::Plugins::WordGame
         response.game_won
         true
       else
+        if @word.before?(word)
+          @upper_bound = word if !@upper_bound || word < @upper_bound
+        else
+          @lower_bound = word if !@lower_bound || word > @lower_bound
+        end
         response.wrong_word(@word.before_or_after(word))
         false
       end

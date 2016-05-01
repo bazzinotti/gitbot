@@ -23,11 +23,17 @@ class Response
   end
 
   def wrong_word(before_or_after)
-    output.reply(%Q{My word comes #{before_or_after} "#{game.last_guess}". You've had #{game.number_of_guesses_phrase}.})
+    lb = @game.lower_bound || "__"
+    ub = @game.upper_bound || "__"
+    output.reply(%Q{My word comes #{before_or_after} "#{game.last_guess}". Limits: #{lb} <=> #{ub}. You've had #{game.number_of_guesses_phrase}.})
   end
 
   def invalid_word
     output.reply(%Q{#{user}: "#{game.last_guess}" isn't a word. At least as far as I know.})
+  end
+
+  def limit_updated
+    output.reply("Lower: #{@game.lower_bound}, Upper: #{@game.upper_bound}")
   end
 
 protected
