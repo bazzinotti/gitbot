@@ -1,13 +1,13 @@
 require 'cinch'
-require_relative 'utils/highscores'
-require_relative 'utils/suggestions'
-require_relative 'utils/misc'
-require_relative 'wordgames/game'
-require_relative 'wordgames/dict_word'
-require_relative 'wordgames/response'
+require_relative '../utils/highscores'
+require_relative '../utils/suggestions'
+require_relative '../utils/misc'
+require_relative 'game'
+require_relative 'dict_word'
+require_relative 'response'
 
 
-module Cinch::Plugins
+module Cinch::Plugins::WordGames
   class WordGame
     Lock_str = "w lock"
     Unlock_str = "w unlock"
