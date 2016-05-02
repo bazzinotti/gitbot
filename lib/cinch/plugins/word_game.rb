@@ -34,16 +34,15 @@ module Cinch::Plugins
     include Cinch::Plugins::Utils::HighScores
     include Cinch::Plugins::Utils::Suggestions
 
+    def dict_filename(dict)
+      dict ? config[:dicts][dict]['filename'] : "/usr/share/dict/words"
+    end
+
     def initialize(*args)
       super
-      dd = config[:default_dict]
-      if !dd
-        dictfile = "/usr/share/dict/words"
-      else
-        #puts "#{dd} | #{config[:dicts]}"
-        dictfile = config[:dicts][dd]['filename']
-      end
-      @dict = Dictionary.from_file(dictfile)
+
+      @dict = Dictionary.from_file(dict_filename(config[:default_dict]))
+      @ref_dict = Dictionary.from_file(dict_filename(config[:ref_dict]))
       @locked = false
       @game = nil
     end
@@ -122,7 +121,7 @@ module Cinch::Plugins
       if @game
         m.reply "There's already a game running!"
       else
-        @game = Game.new(@dict)
+        @game = Game.new(@dict, @ref_dict)
         response(m).start_game @bot.config.plugins.prefix
       end
     end
@@ -154,7 +153,7 @@ module Cinch::Plugins
     class Game < WordGames::Game
       attr_reader :lower_bound, :upper_bound
 
-      def initialize(dictionary)
+      def initialize(*args)
         super
         @lower_bound = nil
         @upper_bound = nil

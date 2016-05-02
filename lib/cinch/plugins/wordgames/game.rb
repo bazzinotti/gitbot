@@ -8,8 +8,9 @@ module Cinch::Plugins::WordGames
   class Game
     attr_reader :number_of_guesses, :last_guess, :word
 
-    def initialize(dictionary)
+    def initialize(dictionary, ref_dict)
       @dict = dictionary
+      @ref_dict = ref_dict
       @word = Word.new(@dict.random_word)
       puts "Word is #{@word}"
       @number_of_guesses = 0
@@ -18,7 +19,7 @@ module Cinch::Plugins::WordGames
     def guess(word, response)
       @number_of_guesses += 1
       @last_guess = word
-      if @dict.word_valid?(word)
+      if @dict.word_valid?(word) || @ref_dict.word_valid?(word)
         guess_correct?(word, response)
       else
         response.invalid_word
