@@ -14,7 +14,7 @@ module Cinch
       USAGE = "The last time I saw somebody in this channel. Example: !seen davidcelis"
 
       listen_to :channel
-      match /seen (.+)/
+      match /seen (\S+)/
 
       def initialize(*args)
         super
