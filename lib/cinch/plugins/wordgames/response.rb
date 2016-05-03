@@ -18,6 +18,10 @@ class Response
     output.reply("Yes, that's the word! Congratulations, #{user} wins! You had #{game.number_of_guesses_phrase}.")
   end
 
+  def autocheat
+    output.reply "That's #{game.number_of_guesses_phrase}!! The word is #{game.word}. Nice try, losers!"
+  end
+
   def cheat
     output.reply "You want to cheat after #{game.number_of_guesses_phrase}? Fine. The word is #{game.word}. #{user}: you suck."
   end
