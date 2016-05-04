@@ -1,0 +1,68 @@
+// Place all the styles related to the scores controller here.
+// They will automatically be included in application.css.
+// You can use Sass (SCSS) here: http://sass-lang.com/
+
+body {
+	font-family: 'Source Sans Pro', sans-serif;
+}
+
+#leaderboard {
+	margin-left: 20px;
+	margin-top: 20px;
+	text-align: center;
+	width: 500px;
+}
+
+#score-data {
+	box-shadow: 10px 10px 20px #aaaaaa;
+	display: table;
+	table-layout: fixed;
+	width: inherit
+}
+
+.column {
+	width: 33.33%;
+	float: left;
+}
+
+.column p {
+	padding: 10px;
+	margin: 0;
+}
+
+.row {
+	background-color: #dadafa;
+	width: 100%;
+	display: table-row;
+}
+
+.row div {
+	display: table-cell;
+}
+
+.row:nth-child(odd) {
+	background-color: #dfdffd;
+}
+
+.row .column {
+	text-align: center;
+	border-top: 1px solid #cacaea;
+	border-bottom: 3px solid #cacaea;
+}
+
+.row .column:nth-child(1) {
+	font-weight: bold;
+}
+
+.row .column:nth-child(2) {
+	overflow-x: hidden;
+}
+
+.row .column:nth-child(3) {
+}
+
+.row .column:nth-child(2) p {
+	text-overflow: ellipsis;
+	overflow-x: hidden;
+	white-space: nowrap;
+}

@@ -1,0 +1,25 @@
+<div id="leaderboard">
+
+  <h2><%= @game.capitalize %> Leaderbord (Top <%= @scores.size %>)</h2>
+  <div id="score-data">
+    <%
+      @scores.each_with_index do |name_score, rank| 
+        name = name_score[0]
+        score = name_score[1]
+        num_wins = score.to_i
+        win_str = num_wins > 1 ? "s" : ""
+    %>
+      <div class="row">
+        <div class="column">
+          <p>RANK <%= rank+1 %></p>
+        </div>
+        <div class="column">
+          <p><%= name %></p>
+        </div>
+        <div class="column">
+          <p><%= num_wins %> win<%= win_str %></p>
+        </div>
+      </div>
+    <% end %>
+  </div>
+</div>
