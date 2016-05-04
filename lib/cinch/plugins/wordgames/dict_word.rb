@@ -10,7 +10,7 @@ class Dictionary
     words = []
     File.foreach(filename) do |word|
       #if word[0] == word[0].downcase
-        words << word.strip.gsub(/'.*/, '')
+        words << word.strip.gsub(/'.*/, '').downcase
       #end
     end
     dict = self.new(words.uniq)
@@ -35,7 +35,7 @@ class Word
   end
 
   def before?(other_word)
-    @word < other_word.downcase
+    @word < other_word
   end
 
   def before_or_after(other_word)

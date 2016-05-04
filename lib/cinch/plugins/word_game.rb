@@ -140,6 +140,7 @@ module Cinch::Plugins
     match(/#{Guess_str} (\S+)/, method: :guess)
     def guess(m, word)
       if @game
+        word = word.downcase
         if @game.guess(word, response(m))
           @game = nil
           inc_highscore(m.user)
