@@ -2,6 +2,17 @@ module Cinch::Plugins
   class Webhooks
     include Cinch::Plugin
 
+    module Submodule
+      def initialize(config, bot)
+        @config = config[self.class.name.to_s.split('::').last.to_sym].inject({}){|memo,(k,v)| memo[k.to_sym] = v; memo}
+        @bot = bot
+      end
+
+      def config
+        @config
+      end
+    end
+
     class Server < Sinatra::Base
       def self.bot
         @bot

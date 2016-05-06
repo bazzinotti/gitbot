@@ -37,7 +37,7 @@ module Cinch::Plugins
           false
         end
       end
-      
+
       self.submodule_init(Github)
     end
 
@@ -59,14 +59,7 @@ module Cinch::Plugins
       end
 
       class Github
-        def initialize(config, bot)
-          @config = config[:Github].inject({}){|memo,(k,v)| memo[k.to_sym] = v; memo}
-          @bot = bot
-        end
-
-        def config
-          @config
-        end
+        include Submodule
         ##############
         # IRC Output #
         ##############
