@@ -2,9 +2,18 @@ module Cinch::Plugins
   class Webhooks
     include Cinch::Plugin
 
+    module SubmoduleClassMethods
+      def submodule_name
+        @submodule_name
+      end
+    end
+
+    extend SubmoduleClassMethods
+
     module Submodule
       def initialize(config, bot)
-        @config = config[self.class.name.to_s.split('::').last.to_sym].inject({}){|memo,(k,v)| memo[k.to_sym] = v; memo}
+        @config = config[self.class.name.to_s.split('::').last.to_sym] ? config[self.class.name.to_s.split('::').last.to_sym].inject({}){|memo,(k,v)| memo[k.to_sym] = v; memo} : {}
+        puts "DERPERPEPRPE\n#{@config}"
         @bot = bot
       end
 
@@ -13,7 +22,10 @@ module Cinch::Plugins
       end
     end
 
+
     class Server < Sinatra::Base
+      extend SubmoduleClassMethods
+
       def self.bot
         @bot
       end
@@ -30,15 +42,8 @@ module Cinch::Plugins
         @config = config
       end
 
-      def self.submodule_init(name)
-        orig_method = self.method(:init)
-        self.define_singleton_method :init do |config|
-          orig_method.call config
-          name.config = config[name.to_s.split('::').last.to_sym].inject({}){|memo,(k,v)| memo[k.to_sym] = v; memo}
-        end
-      end
-
       def self.init(config={})
+        puts "INIT"
         server_config = {
           :bind => "0.0.0.0",
           :port => "5651",
@@ -47,10 +52,34 @@ module Cinch::Plugins
           :run => true,
           :traps => false
         }.merge(config[:Server])
+
+        puts config
   
         set server_config
 
         @config = config
+      end
+
+      def self.submodule_init(name)
+        puts self
+        orig_method = self.method(:init)
+        self.define_singleton_method :init do |config|
+          orig_method.call config
+          name_var = self.const_get(name)
+          name_var.config = config[name.to_sym].inject({}){|memo,(k,v)| memo[k.to_sym] = v; memo}
+        end
+      end
+
+      module Submodule
+        def self.included(server)
+          mod = Module.new do
+            class << self
+              attr_accessor :config
+            end
+          end
+          server.const_set(server.submodule_name.to_sym, mod)
+          server.submodule_init(server.submodule_name)
+        end
       end
 
       get "/" do
@@ -66,7 +95,7 @@ module Cinch::Plugins
 
     def initialize(*args)
       super
-      #puts config
+      puts "INITIALIZE"
       @sinatra_thread = Thread.new do
         Server.bot = @bot
         # () string keys into symbols ;)

@@ -15,11 +15,10 @@ module Cinch::Plugins
         return halt 200
       end
 
-      module Github
-        class << self
-          attr_accessor :config
-        end
+      @submodule_name = "Github"
+      include Submodule
 
+      module Github
         ################
         # Verification #
         ################
@@ -37,8 +36,6 @@ module Cinch::Plugins
           false
         end
       end
-
-      self.submodule_init(Github)
     end
 
     module Github
