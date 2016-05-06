@@ -23,7 +23,7 @@ module Cinch::Plugins
         orig_method = self.method(:init)
         self.define_singleton_method :init do |config|
           orig_method.call config
-          name.config = config[name.to_s.split('::').last.to_sym]
+          name.config = config[name.to_s.split('::').last.to_sym].inject({}){|memo,(k,v)| memo[k.to_sym] = v; memo}
         end
       end
 

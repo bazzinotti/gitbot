@@ -25,15 +25,15 @@ module Cinch::Plugins
         ################
 
         def self.verify_signature(payload_body)
-          signature = 'sha1=' + OpenSSL::HMAC.hexdigest(OpenSSL::Digest.new('sha1'), config['secret'], payload_body)
+          signature = 'sha1=' + OpenSSL::HMAC.hexdigest(OpenSSL::Digest.new('sha1'), config[:secret], payload_body)
           return halt 500, "Signature mismatch" unless Rack::Utils.secure_compare(signature, request.env['HTTP_X_HUB_SIGNATURE'])
         end
 
         def self.ignored?(event, data)
-          return false unless config['ignore'] && config['ignore'].key?(event)
-          return true if config['ignore'][event].empty?
+          return false unless config[:ignore] && config[:ignore].key?(event)
+          return true if config[:ignore][event].empty?
           match = (event == 'create' || event == 'delete') ? :ref_type : :action
-          return true if config['ignore'][event].include? data[match]
+          return true if config[:ignore][event].include? data[match]
           false
         end
       end
@@ -60,7 +60,7 @@ module Cinch::Plugins
 
       class Github
         def initialize(config, bot)
-          @config = config[:Github]
+          @config = config[:Github].inject({}){|memo,(k,v)| memo[k.to_sym] = v; memo}
           @bot = bot
         end
 
@@ -73,7 +73,7 @@ module Cinch::Plugins
 
         def say(repo,msg)
           @bot.config.channels.each do |chan|
-            unless config['filters'].include? chan and not config['filters'][chan].include? repo
+            unless config[:filters].include? chan and not config[:filters][chan].include? repo
               @bot.Channel(chan).send msg
             end
           end
