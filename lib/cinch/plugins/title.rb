@@ -1,6 +1,5 @@
 require 'cinch'
-require 'open-uri'
-require 'nokogiri'
+require_relative 'utils/uri'
 
 module Cinch
   module Plugins
@@ -11,20 +10,8 @@ module Cinch
 
       match(/.*/)
       def execute(m)
-        urls = URI.extract m.message
-        if urls.any?
-          titles = urls.collect { |url|
-            begin
-              Nokogiri::HTML(open(url), nil, 'utf-8').title.gsub(/(\r\n?|\n|\t)/, "")
-            rescue => e
-              puts "Error fetching title: #{e}"
-              return
-            end
-          }.keep_if { |t| t.length > 0 }
-          if titles.any?
-            m.reply "Link: #{titles.join(' || ')}"
-          end
-        end
+        titles = Utils::URI.get_titles(m.message)
+        m.reply "Link: #{titles}" if titles
       end
     end
   end
