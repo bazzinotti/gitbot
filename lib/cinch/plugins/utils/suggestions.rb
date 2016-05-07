@@ -22,29 +22,31 @@ module Cinch::Plugins::Utils::Suggestions
     m.reply(response)
   end
 
-  def suggest(m, word)
-    return print_suggestions(m, 5) if word.empty?
+  def suggest(m, words)
+    return print_suggestions(m, 5) if words.empty?
 
-    if @bot.admin?(m.user)
-      # remove word
-      rem_suggestion(word)
-      # check if it's already in the dict
-      return m.reply "\"#{word}\" is already in the dict!" if @dict.word_valid?(word)
+    words.split.each do |word|
+      if @bot.admin?(m.user)
+        # remove word
+        rem_suggestion(word)
+        # check if it's already in the dict
+        return m.reply "\"#{word}\" is already in the dict!" if @dict.word_valid?(word)
 
-      # Append it to dictionary
-      @dict.words << word
-      File.open(@dict.filename, 'a+') do |f|
-        f.seek(-1, IO::SEEK_END)
-        f << "\n" if f.getc != "\n"
-        f << word << "\n"
+        # Append it to dictionary
+        @dict.words << word
+        File.open(@dict.filename, 'a+') do |f|
+          f.seek(-1, IO::SEEK_END)
+          f << "\n" if f.getc != "\n"
+          f << word << "\n"
+        end
+        m.reply("\"#{word}\" added to dict", true)
+      else
+        # check if suggestion already exists in dictionary
+        return m.reply "\"#{word}\" is already in the dict!" if @dict.word_valid?(word)
+        # add suggestion
+        inc_suggestion(word)
+        m.reply('Thank you for your suggestion. My master will review it.', true)
       end
-      m.reply("\"#{word}\" added to dict", true)
-    else
-      # check if suggestion already exists in dictionary
-      return m.reply "\"#{word}\" is already in the dict!" if @dict.word_valid?(word)
-      # add suggestion
-      inc_suggestion(word)
-      m.reply('Thank you for your suggestion. My master will review it.', true)
     end
   end
 
@@ -54,7 +56,7 @@ module Cinch::Plugins::Utils::Suggestions
 #{self.const_get :Suggest_str} <word>
   Suggest a word be added to dictionary
 HELP
-      match(/#{self.const_get :Suggest_str}\s*(\S*)/, method: :suggest)
+      match(/#{self.const_get :Suggest_str}\s*(.*)/, method: :suggest)
     end
   end
 
