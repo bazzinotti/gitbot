@@ -95,20 +95,25 @@
 # You should have received a copy of the GNU Lesser General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+# Hack: Disable cinch auto-help matchers
+module Cinch::Plugin
+  def __register_help
+  end
+end
+
 # Help plugin for Cinch.
 class Cinch::Plugins::Help
   include Cinch::Plugin
 
   listen_to :connect, :method => :on_connect
-  match /help(.*)/i, :prefix => lambda{|msg| Regexp.compile("^#{Regexp.escape(msg.bot.nick)}:?\s*")}, :react_on => :channel
-  match /help(.*)/i, :use_prefix => false, :react_on => :private
+  match /help(.*)/i
 
   set :help, <<-EOF
-[/msg] cinch help
+help
   Post a short introduction and list available plugins.
-[/msg] cinch help <plugin>
+help <plugin>
   List all commands available in a plugin.
-[/msg] cinch help search <query>
+help search <query>
   Search all plugin’s commands and list all commands containing
   <query>.
   EOF
@@ -122,7 +127,7 @@ class Cinch::Plugins::Help
       response << @intro_message.strip << "\n"
       response << "Available plugins:\n"
       response << bot.config.plugins.plugins.map{|plugin| format_plugin_name(plugin)}.join(", ")
-      response << "\n'help <plugin>' for help on a specific plugin."
+      response << "\n`#{@bot.config.plugins.prefix}help <plugin>` for help on a specific plugin."
 
     # Help for a specific plugin
     elsif plugin = @help.keys.find{|plugin| format_plugin_name(plugin) == query}
@@ -133,6 +138,7 @@ class Cinch::Plugins::Help
     # help search <...>
     elsif query =~ /^search (.*)$/i
       query2 = $1.strip
+      query2 = query2[1..-1] if query2[0] == @bot.config.plugins.prefix
       @help.each_pair do |plugin, hsh|
         hsh.each_pair do |command, explanation|
           response << format_command(command, explanation, plugin) if command.include?(query2)
@@ -165,7 +171,7 @@ class Cinch::Plugins::Help
     if config[:intro]
       @intro_message = config[:intro] % bot.nick
     else
-      @intro_message = "#{bot.nick} at your service."
+      @intro_message = "#{bot.nick} here to help!~"
     end
 
     bot.config.plugins.plugins.each do |plugin|
