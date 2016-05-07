@@ -13,7 +13,7 @@ module Cinch::Plugins::Utils::Suggestions
     nn = truncate_n(m,n)
     ts = top_suggestions(nn)
     response << "┌─ " << "#{class_name} " \
-      "Suggestions Leaderboard (Top #{ts.length})" << " ─── " << "\n"
+      "Suggestions Leaderboard" << " ─── " << "(Top #{ts.length})" << " ─" << "\n"
     ts.each_with_index do |us, ix|
       num_wins = us[1].to_i
       response << "RANK #{ix+1}) #{us[0]} - #{num_wins} time#{"s" if num_wins > 1}\n"
