@@ -38,6 +38,8 @@ module Cinch::Plugins
         # increments a user's score by 1
         def inc_highscore(user)
           inc_score(highscore_table, user)
+          # update time
+          Bazz::Utils::Redis.set(highscore_time(user), Time.new.to_i.to_s)
         end
 
         def rem_highscore(user)
