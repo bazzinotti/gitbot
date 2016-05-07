@@ -16,7 +16,7 @@ module Cinch::Plugins::Utils::Suggestions
       "Suggestions Leaderboard (Top #{ts.length})" << " ─── " << "\n"
     ts.each_with_index do |us, ix|
       num_wins = us[1].to_i
-      response << "RANK #{ix+1}) #{us[0]} - #{num_wins} times\n"
+      response << "RANK #{ix+1}) #{us[0]} - #{num_wins} time#{"s" if num_wins > 1}\n"
     end
     response << "\n" << "└ ─ ─ ─ ─ ─ ─ ─ ─\n"
     m.reply(response)
