@@ -46,6 +46,7 @@ module Cinch::Plugins
 
         def highscores_sort(real_scores, users, last_score)
           # check if there are scores to sort!!
+          return real_scores if users.size == 0
           if users.size > 1
             # let's do fun sorting!!
             user_time = []
@@ -57,12 +58,11 @@ module Cinch::Plugins
             user_time.sort_by(&:last).each do |u, t|
               real_scores << [u, last_score]
             end
-            users.clear
-          elsif users.size == 1
+          else
             # if not, just add it to real_scores
             real_scores << [users[0], last_score]
           end
-          [real_scores, users]
+          real_scores
         end
 
         def top_highscores(n)
@@ -74,13 +74,13 @@ module Cinch::Plugins
           scores.each do |user, score|
             # check if this score is already present
             if last_score != score
-              real_scores, users = highscores_sort(real_scores, users, last_score)
+              real_scores = highscores_sort(real_scores, users, last_score)
+              users.clear
             end
             users << user
             last_score = score
           end
-          real_scores, users = highscores_sort(real_scores, users, last_score)
-          real_scores
+          highscores_sort(real_scores, users, last_score)
         end
       end
     end
