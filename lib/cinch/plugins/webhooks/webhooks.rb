@@ -83,13 +83,19 @@ module Cinch::Plugins
       end
 
       get "/" do
-        self.class.config.to_s
+        #self.class.config.to_s
+        return halt 403
       end
 
       post '/' do
         self.class.bot.loggers.debug "Receiving JSON payload"
         
         ""
+      end
+
+      error Sinatra::NotFound do
+        content_type 'text/plain'
+        [404, 'Not Found']
       end
     end
 
