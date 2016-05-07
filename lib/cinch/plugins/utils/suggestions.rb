@@ -24,22 +24,12 @@ module Cinch::Plugins::Utils::Suggestions
 
   def suggest(m, word)
     return print_suggestions(m, 5) if word.empty?
-    #word = word.downcase
-    #set = "#{self.class.plugin_name}:dict_suggestions"
-    #if @bot.redis.sismember(set, word)
-    #  return m.reply 'That word has already been suggested, but thanks!'
-    #end
-    #@bot.redis.sadd(set, word)
 
-    #@bot.redis.zincrby(set, 1, word)
     if @bot.admin?(m.user)
       # remove word
       rem_suggestion(word)
       # check if it's already in the dict
-      if @dict.word_valid?(word)
-        m.reply "\"#{word}\" is already in the dict!"
-        return
-      end
+      return m.reply "\"#{word}\" is already in the dict!" if @dict.word_valid?(word)
 
       # Append it to dictionary
       @dict.words << word
@@ -51,7 +41,7 @@ module Cinch::Plugins::Utils::Suggestions
       m.reply("\"#{word}\" added to dict", true)
     else
       # check if suggestion already exists in dictionary
-
+      return m.reply "\"#{word}\" is already in the dict!" if @dict.word_valid?(word)
       # add suggestion
       inc_suggestion(word)
       m.reply('Thank you for your suggestion. My master will review it.', true)
