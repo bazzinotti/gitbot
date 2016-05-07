@@ -4,6 +4,9 @@
 ## Post Event
 ## Page event
 ## Config mapping path => blog_title
+# p Utils::Uri.get_title_from_url(
+#  "https://snestracker.wordpress.com/2016/04/05/first-people-to-compile-snes-tracker-debugger/")
+#  .split(' | ')[0]
 
 
 module Cinch::Plugins

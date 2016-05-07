@@ -28,6 +28,8 @@ module Bazz
         # increments a user's score by 1
         def inc_score(table, user)
           ZSet.inc_score(table, user)
+          # update time
+          Bazz::Utils::Redis.set(highscore_time(user), Time.new.to_i.to_s)
         end
 
         def rem_score(table, user)
