@@ -2,7 +2,8 @@ $:.unshift File.dirname(__FILE__)
 
 require "cinch"
 require 'redis'
-require 'bazz/utils/redis.rb'
-require 'bazz/utils/scores.rb'
+require 'bazz/utils/class'
+require 'bazz/utils/redis'
+require 'bazz/utils/scores'
 
 require 'ayumi/bot.rb'

@@ -37,8 +37,8 @@ module Ayumi
             Cinch::Plugins.prefix = prefix
 
             config["plugins"].each do |k, v|
-              require_relative "../cinch/plugins/" + k.gsub(/([^\^])([A-Z])/,'\1_\2').downcase 
-              cls = Object.const_get("Cinch::Plugins::" + k)
+              require_relative "../cinch/plugins/" + Bazz::Utils::Class.class_name_to_file_name(k)
+              cls = Cinch::Plugins.const_get(k)
               c.plugins.plugins << cls
 
               if v && v.has_key?("options")
