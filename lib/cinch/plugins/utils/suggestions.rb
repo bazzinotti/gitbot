@@ -30,7 +30,7 @@ module Cinch::Plugins::Utils::Suggestions
         # remove word
         rem_suggestion(word)
         # check if it's already in the dict
-        return m.reply "\"#{word}\" is already in the dict!" if @dict.word_valid?(word)
+        next m.reply "\"#{word}\" is already in the dict!" if @dict.word_valid?(word)
 
         # Append it to dictionary
         @dict.words << word
