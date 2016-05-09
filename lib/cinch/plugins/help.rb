@@ -75,8 +75,14 @@
 # The word "cinch" in the command string will automatically be replaced with
 # the actual nickname of your bot.
 #
+# == New "Properties"
+# INFO
+#    "A message describing your plugin that will be the first to display"
+# ADMIN_ONLY -- only print actual commands help for admin users
+#
 # == Author
 # Marvin Gülker (Quintus)
+# Bazz
 #
 # == License
 # A help plugin for Cinch.
@@ -106,6 +112,8 @@ class Cinch::Plugins::Help
   include Cinch::Plugin
 
   Info_key = "INFO"
+  Admin_only_key = "ADMIN_ONLY"
+  Commands_key = "CMD"
 
   listen_to :connect, :method => :on_connect
   match /help(.*)/i
@@ -120,6 +128,14 @@ help search <query>
   <query>.
   EOF
 
+  def admin?(plugin)
+    @help[plugin][Admin_only_key]
+  end
+
+  def allowed?(plugin, user)
+    admin?(plugin) ? @bot.admin?(user) : true
+  end
+
   def execute(msg, query)
     query = query.strip.downcase
     response = ""
@@ -133,13 +149,14 @@ help search <query>
 
     # Help for a specific plugin
     elsif plugin = @help.keys.find{|plugin| format_plugin_name(plugin).downcase == query}
-      sorted_keys = @help[plugin].keys.sort
       if @help[plugin].has_key?(Info_key)
-        iik = sorted_keys.index(Info_key)
-        sorted_keys[0], sorted_keys[iik] = sorted_keys[iik], sorted_keys[0]
+        response << format_command(Info_key, @help[plugin][Info_key], plugin, print_prefix: false)
       end
-      sorted_keys.each do |command|
-        response << format_command(command, @help[plugin][command], plugin)
+
+      if allowed?(plugin, msg.user)
+        @help[plugin][Commands_key].keys.sort.each do |command|
+          response << format_command(command, @help[plugin][Commands_key][command], plugin)
+        end
       end
 
     # help search <...>
@@ -147,13 +164,15 @@ help search <query>
       query2 = $1.strip
       query2 = query2[1..-1] if query2[0] == @bot.config.plugins.prefix
       @help.each_pair do |plugin, hsh|
-        hsh.each_pair do |command, explanation|
-          response << format_command(command, explanation, plugin) if command.include?(query2)
+        if allowed?(plugin, msg.user)
+          hsh[Commands_key].each_pair do |command, explanation|
+            response << format_command(command, explanation, plugin) if command.include?(query2)
+          end
         end
       end
 
       # For plugins without help
-      response << "Sorry, no help available for the #{format_plugin_name(plugin)} plugin." if response.empty?
+      response << "Sorry, no results found :(" if response.empty?
 
     # Something we don't know what do do with
     else
@@ -161,7 +180,7 @@ help search <query>
     end
 
     response << "Sorry, nothing found." if response.empty?
-    msg.reply(response)
+    msg.user.notice(response)
   end
 
   # Called on startup. This method iterates the list of registered plugins
@@ -183,15 +202,28 @@ help search <query>
 
     bot.config.plugins.plugins.each do |plugin|
       @help[plugin] = Hash.new{|h, k| h[k] = ""}
+      @help[plugin][Commands_key] = Hash.new{|h, k| h[k] = ""}
       next unless plugin.help # Some plugins don't provide help
       current_command = "<unparsable content>" # For not properly formatted help strings
+      @help[plugin][Admin_only_key] = false
+      option = nil
 
       plugin.help.lines.each do |line|
         if line =~ /^\s+/
-          @help[plugin][current_command] << line.strip
+          if option
+            @help[plugin][option] << line.strip
+            option = nil
+          else
+            @help[plugin][Commands_key][current_command] << line.strip
+          end
         else
           current_command = line.strip.gsub(/cinch/i, bot.name)
-          current_command.upcase! if current_command.upcase == Info_key
+          if current_command.upcase == Info_key
+            option = Info_key
+          elsif current_command.upcase == Admin_only_key
+            @help[plugin][Admin_only_key] = true
+
+          end
         end
       end
     end
@@ -200,19 +232,20 @@ help search <query>
   private
 
   # Format the help for a single command in a nice, unicode mannor.
-  def format_command(command, explanation, plugin)
+  def format_command(command, explanation, plugin, options = {})
+    options = {:print_prefix => true}.merge(options)
     result = ""
 
-    result << "┌─ " << @bot.config.plugins.prefix << command << " ─── Plugin: " << format_plugin_name(plugin) << " ─" << "\n"
+    result << "┌─ " << @bot.config.plugins.prefix if options[:print_prefix]
+    result << command << " ─── Plugin: " << format_plugin_name(plugin) << " ─" << "\n"
     result << explanation.lines.map(&:strip).join(" ").chars.each_slice(80).map(&:join).join("\n")
     result << "\n" << "└ ─ ─ ─ ─ ─ ─ ─ ─\n"
 
     result
   end
 
-  # Downcase the plugin name and clip it to the last component
-  # of the namespace, so it can be displayed in a user-friendly
-  # way.
+  # clip plugin name to the last component of the namespace, so it can be
+  # displayed in a user-friendly way
   def format_plugin_name(plugin)
     plugin.to_s.split("::").last
   end
