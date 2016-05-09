@@ -51,6 +51,7 @@ module Ayumi
             end
           end
         end
+        @last_refresh = Time.new
       end
     end
 
@@ -65,7 +66,12 @@ module Ayumi
     end
 
     def admin?(user)
-      user.refresh
+      time = Time.new
+      if time > (@last_refresh + 10)
+        puts "refreshing\n"
+        user.refresh
+        @last_refresh = time
+      end
       admins.include?(user.authname)
     end
 
