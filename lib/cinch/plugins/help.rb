@@ -105,6 +105,8 @@ end
 class Cinch::Plugins::Help
   include Cinch::Plugin
 
+  Info_key = "INFO"
+
   listen_to :connect, :method => :on_connect
   match /help(.*)/i
 
@@ -130,8 +132,13 @@ help search <query>
       response << "\n`#{@bot.config.plugins.prefix}help <plugin>` for help on a specific plugin."
 
     # Help for a specific plugin
-    elsif plugin = @help.keys.find{|plugin| format_plugin_name(plugin) == query}
-      @help[plugin].keys.sort.each do |command|
+    elsif plugin = @help.keys.find{|plugin| format_plugin_name(plugin).downcase == query}
+      sorted_keys = @help[plugin].keys.sort
+      if @help[plugin].has_key?(Info_key)
+        iik = sorted_keys.index(Info_key)
+        sorted_keys[0], sorted_keys[iik] = sorted_keys[iik], sorted_keys[0]
+      end
+      sorted_keys.each do |command|
         response << format_command(command, @help[plugin][command], plugin)
       end
 
@@ -184,6 +191,7 @@ help search <query>
           @help[plugin][current_command] << line.strip
         else
           current_command = line.strip.gsub(/cinch/i, bot.name)
+          current_command.upcase! if current_command.upcase == Info_key
         end
       end
     end
@@ -206,7 +214,7 @@ help search <query>
   # of the namespace, so it can be displayed in a user-friendly
   # way.
   def format_plugin_name(plugin)
-    plugin.to_s.split("::").last.downcase
+    plugin.to_s.split("::").last
   end
 
 end
