@@ -167,8 +167,8 @@ module Cinch::Plugins
 
       def initialize(*args)
         super
-        @lower_bound = nil
-        @upper_bound = nil
+        @lower_bound = "__"
+        @upper_bound = "__"
       end
 
     protected

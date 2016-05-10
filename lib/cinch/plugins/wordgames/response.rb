@@ -5,8 +5,20 @@ class Response
     @user = output.user
   end
 
+  # put helper functions in here that return a string
+  module Helper
+    def limits
+      lb = @game.lower_bound
+      ub = @game.upper_bound
+      "Limits: #{lb} <=> #{ub}. You've had #{game.number_of_guesses_phrase}."
+    end
+  end
+
+  include Helper
+
   def game_not_started(prefix)
-    output.reply("I haven't started a word game yet. Use " \
+    output.reply(
+      "I haven't started a word game yet. Use " \
       "`#{prefix}#{Cinch::Plugins::WordGame::Start_str}` to start one.")
   end
 
@@ -15,29 +27,31 @@ class Response
   end
 
   def game_won
-    output.reply("Yes, that's the word! Congratulations, #{user} wins! You had #{game.number_of_guesses_phrase}.")
+    output.reply(
+      "Yes, that's the word! Congratulations, #{user} wins! " \
+      "You had #{game.number_of_guesses_phrase}.")
   end
 
   def autocheat
-    output.reply "That's #{game.number_of_guesses_phrase}!! The word is #{game.word}. Nice try, losers!"
+    output.reply(
+      "That's #{game.number_of_guesses_phrase}!! " \
+      "The word is #{game.word}. Nice try, losers!")
   end
 
   def cheat
-    output.reply "You want to cheat after #{game.number_of_guesses_phrase}? Fine. The word is #{game.word}. #{user}: you suck."
+    output.reply(
+      "You want to cheat after #{game.number_of_guesses_phrase}? Fine. " \
+      "The word is #{game.word}. #{user}: you suck.")
   end
 
   def wrong_word(before_or_after)
-    lb = @game.lower_bound || "__"
-    ub = @game.upper_bound || "__"
-    output.reply(%Q{My word comes #{before_or_after} "#{game.last_guess}". Limits: #{lb} <=> #{ub}. You've had #{game.number_of_guesses_phrase}.})
+    output.reply(%Q{My word comes #{before_or_after} "#{game.last_guess}". #{limits}})
   end
 
   def invalid_word
-    output.reply(%Q{#{user}: "#{game.last_guess}" isn't a word. At least as far as I know.})
-  end
-
-  def limit_updated
-    output.reply("Lower: #{@game.lower_bound}, Upper: #{@game.upper_bound}")
+    output.reply(
+      %Q{#{user}: "#{game.last_guess}" isn't a word. At least as far as I know. } +
+      limits)
   end
 
 protected
