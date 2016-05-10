@@ -144,6 +144,8 @@ module Cinch::Plugins
         if @game.guess(word, response(m))
           @game = nil
           inc_highscore(m.user)
+          sleep 2
+          print_highscores(m, 10)
         else
           autocheat(m) if @game.number_of_guesses >= (config[:max_guesses] || 100)
         end
