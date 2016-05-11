@@ -144,8 +144,10 @@ module Cinch::Plugins
         if @game.guess(word, response(m))
           @game = nil
           inc_highscore(m.user)
-          sleep 2
-          print_highscores(m, 10)
+          if config[:show_leaderboard_after_win]
+            sleep 2
+            print_highscores(m, 10)
+          end
         else
           autocheat(m) if @game.number_of_guesses >= (config[:max_guesses] || 100)
         end
