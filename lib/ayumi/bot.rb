@@ -10,6 +10,8 @@ module Ayumi
           config = YAML.load_file config_file
           @yml_config = config
 
+          puts config
+
           rconf = {}
           config["redis"].each { |k, v| rconf[k.to_sym] = v }
 
@@ -24,6 +26,7 @@ module Ayumi
             c.realname = config["realname"]
             c.server = config["server"]
             c.port = config["port"]
+            c.ssl.use = config["ssl.use"]
             mappings = {}
             c.channels = config["channels"].map! do |chan|
               mappings[chan] = chan + ENV['GITBOT_IRC_CHAN_EXT'].to_s # config["channel-ext"]
