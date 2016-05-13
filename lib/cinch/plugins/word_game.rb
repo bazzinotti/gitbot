@@ -143,7 +143,10 @@ module Cinch::Plugins
         word = word.downcase
         if @game.guess(word, response(m))
           @game = nil
-          inc_highscore(m.user)
+          # highlevel inc_score incoming!!!
+          user = m.user.authed? ? m.user.authname : m.user
+
+          inc_highscore(user)
           if config[:show_leaderboard_after_win]
             sleep 2
             print_highscores(m, 10)
