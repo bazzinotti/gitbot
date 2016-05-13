@@ -3,6 +3,8 @@
 require 'cinch'
 require 'json'
 
+Encoding.default_external = 'UTF-8'
+
 module Cinch
   module Plugins
     class S
