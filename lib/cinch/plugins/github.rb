@@ -10,7 +10,7 @@ module Cinch::Plugins
     include Cinch::Plugin
 
     set :help, <<-HELP
-ghrepo <user> <repo>
+ghrepo <user>/<repo>
  	Provides link to <user>/<repo>
 ghuser <user>
  	Sees if <user> exists, and if so provides URL
@@ -19,7 +19,7 @@ ghuser <user>
     Base_url = "https://api.github.com"
 
     match(/ghuser (\S+)/, method: :ghuser)
-    match(/ghrepo (\S+) (\S+)/, method: :ghrepo)
+    match(/ghrepo\s*(\S+)/, method: :ghrepo)
 
     def not_found?(data)
     	data["message"] == "Not Found"
@@ -38,7 +38,8 @@ ghuser <user>
       				data["html_url"]
     end
 
-    def ghrepo(m, user, repo)
+    def ghrepo(m, user_repo)
+      user, repo = user_repo.split('/')
     	uri = URI(Base_url + "/repos/" + user + "/" + repo)
 			response = Net::HTTP.get(uri)
 			data = JSON.parse(response)
