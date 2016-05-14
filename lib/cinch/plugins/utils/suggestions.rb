@@ -24,6 +24,7 @@ module Cinch::Plugins::Utils::Suggestions
 
   def suggest(m, words)
     return print_suggestions(m, 5) if words.empty?
+    return print_suggestions(m, words.to_i) if words =~ /\d/
 
     words.split.each do |word|
       if @bot.admin?(m.user)
