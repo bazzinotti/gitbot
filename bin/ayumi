@@ -16,5 +16,3 @@ end
 bot = Ayumi::Bot.new(config_file)
 
 bot.start
-
-
