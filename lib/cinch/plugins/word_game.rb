@@ -9,14 +9,17 @@ require_relative 'wordgames/response'
 
 module Cinch::Plugins
   class WordGame
-    Lock_str = "w lock"
-    Unlock_str = "w unlock"
-    Start_str = "w start"
+    Prefix_str = "w"
+    Lock_str = "#{Prefix_str} lock"
+    Unlock_str = "#{Prefix_str} unlock"
+    Start_str = "#{Prefix_str} start"
     Guess_str = "guess"
-    Cheat_str = "w cheat"
-    Highscores_str = "w scoreboard"
-    Suggest_str = "w suggest"
-    Dict_str = "w dict"
+    Cheat_str = "#{Prefix_str} cheat"
+    Dict_str = "#{Prefix_str} dict"
+    # Used in Highscore sub-module
+    Highscores_str = "#{Prefix_str} scoreboard"
+    # Used in Suggestions sub-module
+    Suggest_str = "#{Prefix_str} suggest"
 
     include Cinch::Plugin
 
