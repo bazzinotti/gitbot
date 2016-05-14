@@ -5,31 +5,22 @@ require_relative 'suggestions_backend'
 # @dict, @bot, config[:dict]
 
 module Cinch::Plugins::Utils::Suggestions
-  # Database backend!!!
-  include Redis
+  Driver = Redis
+  attr_reader :suggestions
 
-  def print_suggestions(m, n)
-    response = ""
-    nn = truncate_n(m,n)
-    ts = top_suggestions(nn)
-    response << "┌─ " << "#{class_name} " \
-      "Suggestions Leaderboard" << " ─── " << "(Top #{ts.length})" << " ─" << "\n"
-    ts.each_with_index do |us, ix|
-      num_wins = us[1].to_i
-      response << "RANK #{ix+1}) #{us[0]} - #{num_wins} time#{"s" if num_wins > 1}\n"
-    end
-    response << "\n" << "└ ─ ─ ─ ─ ─ ─ ─ ─\n"
-    m.reply(response)
+  def initialize(*args)
+    super
+    @suggestions = Driver.new(self)
   end
 
   def suggest(m, words)
-    return print_suggestions(m, 5) if words.empty?
-    return print_suggestions(m, words.to_i) if words =~ /\d/
+    return self.suggestions.print_suggestions(m, 5) if words.empty?
+    return self.suggestions.print_suggestions(m, words.to_i) if words =~ /\d/
 
     words.split.each do |word|
       if @bot.admin?(m.user)
         # remove word
-        rem_suggestion(word)
+        self.suggestions.rem_suggestion(word)
         # check if it's already in the dict
         next m.reply "\"#{word}\" is already in the dict!" if @dict.word_valid?(word)
 
@@ -45,7 +36,7 @@ module Cinch::Plugins::Utils::Suggestions
         # check if suggestion already exists in dictionary
         return m.reply "\"#{word}\" is already in the dict!" if @dict.word_valid?(word)
         # add suggestion
-        inc_suggestion(word)
+        self.suggestions.inc_suggestion(word)
         m.reply('Thank you for your suggestion. My master will review it.', true)
       end
     end
