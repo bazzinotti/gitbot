@@ -34,7 +34,9 @@ This is a database that Ayumi is using. You should have it installed and running
 
 You can see if you can install Redis through your OS package manager, or install from source through http://redis.io/
 
-You may run your redis server on a unix socket or on a network socket. Configure the yml file as appropriate.
+You may run your redis server on a unix socket or on a network socket. Edit `config.yml` as appropriate.
+
+There is a sample redis.conf file in the `redis` folder that you may use. It will listen on `/tmp/redis.sock`
 
 **Note**: The presence of a unix socket filename will override any network socket configuration if both are present in config.yml
 
