@@ -3,9 +3,22 @@ require 'redis'
 module Cinch::Plugins
   module Utils
     module HighScores
-      include Cinch::Plugins::Utils::Scores
-
       module BackendInterface
+        include Cinch::Plugins::Utils::Scores
+        def print_highscores(m, n)
+          response = ""
+          nn = truncate_n(m,n)
+          ts = top_highscores(nn)
+          response << "┌─ " << "#{@owner.class.name.split("::").last} " \
+            "Leaderboard" << " ─── " <<  "(Top #{ts.length})" << " ─" << "\n"
+          ts.each_with_index do |us, ix|
+            num_wins = us[1].to_i
+            response << "RANK #{ix+1}) #{us[0]} - #{num_wins} win#{"s" if num_wins > 1}\n"
+          end
+          response << "\n" << "└ ─ ─ ─ ─ ─ ─ ─ ─\n"
+          m.reply(response)
+        end
+
         def highscore_table
           raise NotImplementedError, "Implement this method in a child class"
         end
@@ -23,12 +36,16 @@ module Cinch::Plugins
         end
       end
 
-      module Redis
+      class Redis
         include BackendInterface
         include Bazz::Utils::Scores::Redis
 
+        def initialize(owner)
+          @owner = owner
+        end
+
         def highscore_table
-          "#{self.class.plugin_name}:highscores"
+          "#{@owner.class.plugin_name}:highscores"
         end
 
         def highscore_time(user)

@@ -3,21 +3,21 @@ require_relative 'scores'
 require_relative 'highscores_backend'
 
 module Cinch::Plugins::Utils::HighScores
-  # Database backend!!!
-  include Redis
+  Driver = Redis
+  attr_reader :highscores
 
+  def initialize(*args)
+    super
+    @highscores = Driver.new(self)
+  end
+
+  # purely a hack for the matcher
+  # the matcher needs a class-level instance function
+  # but I really want to call an instance variable function
+  # but I can't call it directly since the instance variable does not exist
+  # at the time of "matcher creation"
   def print_highscores(m, n)
-    response = ""
-    nn = truncate_n(m,n)
-    ts = top_highscores(nn)
-    response << "┌─ " << "#{self.class.name.split("::").last} " \
-      "Leaderboard" << " ─── " <<  "(Top #{ts.length})" << " ─" << "\n"
-    ts.each_with_index do |us, ix|
-      num_wins = us[1].to_i
-      response << "RANK #{ix+1}) #{us[0]} - #{num_wins} win#{"s" if num_wins > 1}\n"
-    end
-    response << "\n" << "└ ─ ─ ─ ─ ─ ─ ─ ─\n"
-    m.reply(response)
+    self.highscores.print_highscores(m, n)
   end
 
   def self.included(by)

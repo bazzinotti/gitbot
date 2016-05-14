@@ -31,8 +31,8 @@ module Cinch::Plugins
   Specify a dictionary. Run with no parameters to see available dictionaries.
     HELP
 
-    include Cinch::Plugins::Utils::HighScores
-    include Cinch::Plugins::Utils::Suggestions
+    include Utils::HighScores
+    include Utils::Suggestions
 
     def dict_filename(dict)
       dict ? config[:dicts][dict]['filename'] : "/usr/share/dict/words"
@@ -146,10 +146,10 @@ module Cinch::Plugins
           # highlevel inc_score incoming!!!
           user = m.user.authed? ? m.user.authname : m.user
 
-          inc_highscore(user)
+          self.highscores.inc_highscore(user)
           if config[:show_leaderboard_after_win]
             sleep 2
-            print_highscores(m, 10)
+            self.highscores.print_highscores(m, 10)
           end
         else
           autocheat(m) if @game.number_of_guesses >= (config[:max_guesses] || 100)
