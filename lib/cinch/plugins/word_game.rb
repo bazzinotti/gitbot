@@ -1,6 +1,7 @@
 require 'cinch'
 require_relative 'utils/highscores'
 require_relative 'utils/suggestions'
+require_relative 'utils/unsuggestions'
 require_relative 'utils/misc'
 require_relative 'wordgames/game'
 require_relative 'wordgames/dict_word'
@@ -20,6 +21,8 @@ module Cinch::Plugins
     Highscores_str = "#{Prefix_str} scoreboard"
     # Used in Suggestions sub-module
     Suggest_str = "#{Prefix_str} suggest"
+    # Used in Unsuggestions sub-module
+    Unsuggest_str = "#{Prefix_str} unsuggest"
 
     include Cinch::Plugin
 
@@ -36,6 +39,7 @@ module Cinch::Plugins
 
     include Utils::HighScores
     include Utils::Suggestions
+    include Utils::Unsuggestions
 
     def dict_filename(dict)
       dict ? config[:dicts][dict]['filename'] : "/usr/share/dict/words"
