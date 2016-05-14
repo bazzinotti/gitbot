@@ -9,7 +9,7 @@ module Cinch::Plugins
           response = ""
           nn = truncate_n(m,n)
           ts = top_highscores(nn)
-          response << "┌─ " << "#{@owner.class.name.split("::").last} " \
+          response << "┌─ " << "#{@owner.class_name} " \
             "Leaderboard" << " ─── " <<  "(Top #{ts.length})" << " ─" << "\n"
           ts.each_with_index do |us, ix|
             num_wins = us[1].to_i
