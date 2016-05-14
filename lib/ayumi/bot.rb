@@ -20,20 +20,18 @@ module Ayumi
 
           configure do |c|
             config = config["irc"]
-            c.nick = config["nick"]
-            c.password = config["password"]
-            c.user = config["user"]
-            c.realname = config["realname"]
-            c.server = config["server"]
-            c.port = config["port"]
-            c.ssl.use = config["ssl.use"]
-            mappings = {}
-            c.channels = config["channels"].map! do |chan|
-              mappings[chan] = chan + ENV['GITBOT_IRC_CHAN_EXT'].to_s # config["channel-ext"]
+
+            config['cinch'].each do |k,v|
+              s = k.split('.')
+              if s.size == 2
+                const = c.send(s[0])
+                const.send("#{s[1]}=", v)
+              elsif s.size > 2
+                raise NotImplementedError, "> 1 nesting in variable setting not supported!"
+              else
+                c.send("#{k}=", v)
+              end
             end
-            #remap_chanfilters(config["plugins"]["Github"]["options"]["filters"], mappings)
-            c.messages_per_second = config['messages_per_second'] if config['messages_per_second']
-            c.server_queue_size = config['server_queue_size'] if config['server_queue_size']
 
             prefix = config["prefix"] || '!'
             c.plugins.prefix = prefix

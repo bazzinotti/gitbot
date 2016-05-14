@@ -1,47 +1,96 @@
-# IRC connection settings
+##              EXAMPLE CONFIG.YML              ##
+#                                                #
+# I keep this as close to my own config.yml file #
+
+#### REDIS CONFIG ####
+redis:
+  # You may specify a host/port
+  host: localhost
+  port: 6379
+  # or a local unix socket
+  path: "/tmp/redis.sock"
+  # NOTE: Unix socket path will override host/port settings
+
+#### IRC / CINCH FRAMEWORK CONFIG ####
 irc:
-    server: "irc.esper.net"
-    port: 6667
-    nick: name
-    user: name
-    realname: name
-#    password: changeme
-
-    # Here you can specify the channels that GitBot will join
+  cinch:
+    # (raw/stock) Cinch settings go here
+    # refer to Cinch doc for more info
+    ## http://www.rubydoc.info/github/cinchrb/cinch/
+    server: "somewhere.net"
+    port: 6679
+    ssl.use: true
+    nick: "derpface"
+    user: "derpface"
+    realname: "derpface"
+    password: c00l35tP@55w04d
     channels:
-        - "#chan1"
-        - "#chan2"
+      - "#chat"
+    server_queue_size: 50
+    messages_per_second: 25.0
 
-    plugins:
-        - ["./plugins/plugin1", "Plugin1"]
+  # Plugin Command Prefix
+  prefix: "@" # Defaults to '!'
 
-    plugin_options:
-        Plugin1:
-            option1: 10
-            option2: 25
+  # Admin users (authname)
+  admins:
+    - bazz
 
-# HTTP server settings
-http:
-    host: 0.0.0.0
-    port: 5651
+  ## PLUGIN SETTINGS ##
+  plugins:
+    # plugins are specified by key,
+    ## The key MUST match the plugin Class Name EXACTLY
 
-# By default GitBot will announce all commits to all channels. You can
-# limit a certain channel to only a specified group of repositories by
-# adding a channel filter
-filters:
-    "#chan1": [repo1, repo2]
-    "#chan2": [repo3]
+    # you may exclude certain plugins from operating in certain channels via the
+    ## "exclude" sub-key. It takes an array of channel names.
 
-# By default GitBot will announce all commit types. You can
-# limit types to only those specified by adding a type filter
-# These types are defined in the api, a few examples are
-# shown below
+    # plugin options may be specified in an "options" sub-key
+      # these can be referenced from within the plugin as follows:
+      # config[:option1] or config[:option1]['option2']
+      # it's a bit strange manner right now:
+      # The first sub-key is accessed as a symbol, but further nested sub-keys
+      # are strings... Sorry, I will try to fix that later!
 
-# not impl'd
-exclude:
-#    "issues": [ "labeled", "unlabeled" ]
-#    "pull_request": [ "labeled", "unlabeled"]
-
-# This is where your github webook secret goes (required even if not used)
-github:
-    secret: examplesecret
+    # For more info on a particular plugin's options, see that plugin's file in
+    # lib/cinch/plugins (TODO)
+    PluginManagement:
+    Github:
+    Title:
+    WordGame:
+      options:
+        show_leaderboard_after_win: false
+        max_guesses: 100
+        ref_dict: advanced
+        default_dict: google
+        dicts:
+          advanced:
+            filename: "/home/bazz/words_less"
+            desc: "My fav dictionary"
+          google:
+            filename: "/home/bazz/google-10000-english-usa-mod.txt"
+            desc: "WHAT BE THIS DICT?!"
+    Google:
+    Help:
+    JoinPart:
+    S:
+    MessageHistory:
+      options:
+        user_messages: 10
+        channel_messages: 25
+    Ping:
+    Say:
+    Seen:
+    Misc:
+    Webhooks:
+      options:
+        Server:
+          host: localhost
+          port: 5651
+        Github:
+          filters:
+            "#chan1": [project]
+          secret: examplesecret
+        Wordpress:  # prospective settings (not yet impl'd)
+          filters:
+            "#chan1": [project]
+          secret: examplesecret
