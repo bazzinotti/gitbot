@@ -13,25 +13,19 @@ module Cinch::Plugins
   class Webhooks
 
     class Server < Sinatra::Base
-      post "/wordpress" do
-        puts params
-        event = params['hook']
-        data = params
-        blog_title = "SNES Tracker"
-        #return halt 202, "Ignored: #{event}" if Wordpress.ignored?(event, data)
-        self.class.bot.handlers.dispatch(:wordpress_hook, nil, blog_title, data, event)
-        return halt 200
-      end
-
       @submodule_name = "Wordpress"
       include Submodule
 
       module Wordpress
-        def self.ignored?(event, data)
-          return false unless config[:ignore] && config[:ignore].key?(event)
-          return true if config[:ignore][event].empty?
-          match = (event == 'create' || event == 'delete') ? :ref_type : :action
-          return true if config[:ignore][event].include? data[match]
+        # basically, only return true if the config explicitly sets active: false
+        # lack of the value or parent key defaults to false
+        def self.ignored?(event, data, blog_title)
+          config_event = config[:blogs][blog_title][event]
+          puts "MEME"
+          puts config_event
+          return false if !config_event
+          return false unless active = config_event.key?('active')
+          return true if !config_event['active'] && !config_event['active'].nil?
           false
         end
       end
@@ -53,21 +47,38 @@ module Cinch::Plugins
         super
 
         @wordpress = Wordpress.new(config, @bot)
+
+        c = config
+        Server.class_eval do
+          c[:Wordpress]['blogs'].each do |k, v|
+            post v['path'] do
+              puts params
+              event = params['hook']
+              data = params
+              blog_title = k
+              return halt 202, "Ignored: #{event}" if Server::Wordpress::ignored?(event, data, blog_title)
+              self.class.bot.handlers.dispatch(:wordpress_hook, nil, blog_title, data, event)
+              return halt 200
+            end
+          end
+        end
       end
 
       class Wordpress
         include Submodule
 
+        def blog_channels(title)
+          config[:blogs][title]['channels']
+        end
+
         ##############
         # IRC Output #
         ##############
 
-        def say(repo,msg)
-          # @bot.config.channels.each do |chan|
-          #   unless config[:filters].include? chan and not config[:filters][chan].include? repo
-          #     @bot.Channel(chan).send msg
-          #   end
-          # end
+        def say(title, msg)
+          blog_channels(title).each do |c|
+            @bot.Channel(c).send msg
+          end
         end
 
         #########
@@ -84,6 +95,9 @@ module Cinch::Plugins
 
         def get_publish_post(blog_title, data)
           puts "publish_post"
+          response = "Test!!"
+
+          say(blog_title, response)
         end
       end
     end

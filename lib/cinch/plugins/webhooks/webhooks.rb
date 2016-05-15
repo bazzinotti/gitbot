@@ -12,8 +12,10 @@ module Cinch::Plugins
 
     module Submodule
       def initialize(config, bot)
-        @config = config[self.class.name.to_s.split('::').last.to_sym] ? config[self.class.name.to_s.split('::').last.to_sym].inject({}){|memo,(k,v)| memo[k.to_sym] = v; memo} : {}
-        puts "DERPERPEPRPE\n#{@config}"
+        classname_sym = self.class.name.to_s.split('::').last.to_sym
+        # Convert first-level config property to symbol to maintain normal plugin characteristics
+        @config = config[classname_sym] ?
+          config[classname_sym].inject({}){|memo,(k,v)| memo[k.to_sym] = v; memo} : {}
         @bot = bot
       end
 
