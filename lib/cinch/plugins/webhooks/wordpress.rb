@@ -1,12 +1,4 @@
-# TODO
-## Ignore events
-## Comment Event
-## Post Event
-## Page event
-## Config mapping path => blog_title
-# p Utils::Uri.get_title_from_url(
-#  "https://snestracker.wordpress.com/2016/04/05/first-people-to-compile-snes-tracker-debugger/")
-#  .split(' | ')[0]
+require_relative '../utils/uri'
 
 module Cinch::Plugins
   class Webhooks
@@ -37,8 +29,8 @@ module Cinch::Plugins
         end
       end
 
-      def wordpress_hook(m, blog_title, data, event)
-        @wordpress.send "get_#{event}", blog_title, data
+      def wordpress_hook(m, blog_title, data, event, request)
+        @wordpress.send "get_#{event}", blog_title, data, request
       end
 
       def initialize(*args)
@@ -51,12 +43,12 @@ module Cinch::Plugins
           c[:Wordpress]['blogs'].each do |k, v|
             post v['path'] do
               puts params
-              binding.pry
               event = params['hook']
               data = params
               blog_title = k
               return halt 202, "Ignored: #{event}" if Server::Wordpress::ignored?(event, data, blog_title)
-              self.class.bot.handlers.dispatch(:wordpress_hook, nil, blog_title, data, event)
+              self.class.bot.handlers.dispatch(
+                :wordpress_hook, nil, blog_title, data, event, request)
               return halt 200
             end
           end
@@ -65,9 +57,14 @@ module Cinch::Plugins
 
       class Wordpress
         include Submodule
+        attr_reader :blog_title
+
+        def fetch_title?
+          config[:blogs][self.blog_title]['fetch_title']
+        end
 
         def blog_channels(title)
-          config[:blogs][title]['channels']
+          config[:blogs][self.blog_title]['channels']
         end
 
         ##############
@@ -88,6 +85,13 @@ module Cinch::Plugins
           Cinch::Formatting.format(:Black, '[') +
           Cinch::Formatting.format(:green, blog_title) +
           Cinch::Formatting.format(:Black, ']')
+        end
+
+        def format_blog_title_from_url(url)
+          blog_title = Utils::URI.get_titles(url).split(' | ')[0]
+          Cinch::Formatting.format(:Black, '[') +
+            Cinch::Formatting.format(:green, blog_title) +
+            Cinch::Formatting.format(:Black, ']')
         end
 
         def format_post_title(data)
@@ -111,8 +115,9 @@ module Cinch::Plugins
         # HOOKS #
         #########
 
-        def get_comment_post(blog_title, data)
+        def get_comment_post(blog_title, data, request)
           puts "comment_post"
+          @blog_title = blog_title
           # "[Blog title] New comment on Blog Post by Author @ URL"
           response = format_blog_title(blog_title)
           response << " New comment on \"#{}\""
@@ -122,16 +127,20 @@ module Cinch::Plugins
           say(blog_title, response)
         end
 
-        def get_publish_page(blog_title, data)
+        def get_publish_page(blog_title, data, request)
           puts "publish_page"
+          @blog_title = blog_title
         end
 
         #TODO
         ## compare post_modified_gmt and post_date_gmt to determine if a post
         ## has been created or is being updated
-        def get_publish_post(blog_title, data)
+        def get_publish_post(blog_title, data, request)
           puts "publish_post"
-          response = format_blog_title(blog_title)
+          @blog_title = blog_title
+          response = fetch_title? ?
+            format_blog_title_from_url(request.env['HTTP_REFERER']) :
+            format_blog_title(blog_title)
           response << " New blog post "
           response << format_post_title(data)
           response << " @ " << format_post_url_short(data)
