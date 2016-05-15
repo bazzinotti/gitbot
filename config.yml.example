@@ -87,6 +87,7 @@ irc:
           host: localhost
           port: 5651
         Github:
+          path: "/github"
           filters:
             "#chan1": [project]
           secret: examplesecret
