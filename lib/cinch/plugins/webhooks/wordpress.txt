@@ -1,0 +1,15 @@
+
+New Post!!!
+{"ID"=>"20", "post_author"=>"14669659", "post_date"=>"2016-05-15 03:01:26", "post_date_gmt"=>"2016-05-15 03:01:26", "post_content"=>"test content", "post_title"=>"test title", "post_excerpt"=>"", "post_status"=>"publish", "comment_status"=>"open", "ping_status"=>"open", "post_password"=>"", "post_name"=>"test-title", "to_ping"=>"", "pinged"=>"", "post_modified"=>"2016-05-15 03:01:26", "post_modified_gmt"=>"2016-05-15 03:01:26", "post_content_filtered"=>"", "post_parent"=>"0", "guid"=>"https://snesflasher.wordpress.com/?p=20", "menu_order"=>"0", "post_type"=>"post", "post_mime_type"=>"", "comment_count"=>"0", "post_category"=>{"0"=>"1"}, "post_url"=>"https://snesflasher.wordpress.com/2016/05/15/test-title", "hook"=>"publish_post"}
+
+Private posts are not published hooks ..
+Passworded posts are sent as hooks. You must check if post_password is not empty string
+to know the post is passworded
+I don't know what the point of "post_status" is, since all hooks appear to be published
+Deletes are not hooked
+
+New Comment!!
+{"comment_ID"=>"7", "comment_post_ID"=>"6", "comment_author"=>"bazz1", "comment_author_email"=>"mbazzinotti@gmail.com", "comment_author_url"=>"http://bazz1.wordpress.com", "comment_author_IP"=>"73.167.164.110", "comment_date"=>"2016-05-15 05:23:09", "comment_date_gmt"=>"2016-05-15 05:23:09", "comment_content"=>"test", "comment_karma"=>"0", "comment_approved"=>"1", "comment_agent"=>"Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/42.0.2311.90 Safari/537.36", "comment_type"=>"", "comment_parent"=>"0", "user_id"=>"14669659", "approval"=>"1", "hook"=>"comment_post"}
+
+New Page!!
+{"ID"=>"22", "post_author"=>"14669659", "post_date"=>"2016-05-15 05:24:12", "post_date_gmt"=>"2016-05-15 05:24:12", "post_content"=>"test content", "post_title"=>"test title", "post_excerpt"=>"", "post_status"=>"publish", "comment_status"=>"closed", "ping_status"=>"closed", "post_password"=>"", "post_name"=>"test-title", "to_ping"=>"", "pinged"=>"", "post_modified"=>"2016-05-15 05:24:12", "post_modified_gmt"=>"2016-05-15 05:24:12", "post_content_filtered"=>"", "post_parent"=>"0", "guid"=>"https://snesflasher.wordpress.com/?page_id=22", "menu_order"=>"0", "post_type"=>"page", "post_mime_type"=>"", "comment_count"=>"0", "post_url"=>"https://snesflasher.wordpress.com/?page_id=22", "hook"=>"publish_page"}
