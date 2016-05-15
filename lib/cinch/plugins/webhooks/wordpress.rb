@@ -1,5 +1,12 @@
 require_relative '../utils/uri'
 
+# New Post support added
+## Feels ready
+# New Comment support added
+## Doesn't check to see if the comment has been approved!~
+# New Page support NOT added yet AT ALL
+##
+
 module Cinch::Plugins
   class Webhooks
 
@@ -77,9 +84,28 @@ module Cinch::Plugins
           end
         end
 
+        ###########
+        # HELPERS #
+        ###########
+
+        def get_post_url_from_req(data, request)
+          "#{request.referer}/?p=#{data['comment_post_ID']}"
+        end
+
+        def get_post_title_from_req(data, request)
+          post_title, blog_title = Utils::URI.get_titles(
+            get_post_url_from_req(data, request)).split(' | ')
+          format_title(post_title)
+        end
+
         ##############
         # Formatting #
         ##############
+
+        ##TEXT
+        def format_title(txt)
+          Cinch::Formatting.format(:teal, txt)
+        end
 
         def format_blog_title(blog_title)
           Cinch::Formatting.format(:Black, '[') +
@@ -87,15 +113,15 @@ module Cinch::Plugins
           Cinch::Formatting.format(:Black, ']')
         end
 
-        def format_blog_title_from_url(url)
-          blog_title = Utils::URI.get_titles(url).split(' | ')[0]
+        def format_blog_title_from_referer(url)
+          blog_title = Utils::URI.get_titles(url) # .split(' | ')[0]
           Cinch::Formatting.format(:Black, '[') +
             Cinch::Formatting.format(:green, blog_title) +
             Cinch::Formatting.format(:Black, ']')
         end
 
         def format_post_title(data)
-          Cinch::Formatting.format(:teal, "#{data["post_title"]}")
+          format_title("#{data["post_title"]}")
         end
 
         def format_post_url(data)
@@ -111,6 +137,10 @@ module Cinch::Plugins
           Cinch::Formatting.format(:silver, data['comment_author'])
         end
 
+        def format_comment_url(data, request)
+          "#{get_post_url_from_req(data, request)}#comment-#{data['comment_ID']}"
+        end
+
         #########
         # HOOKS #
         #########
@@ -119,10 +149,11 @@ module Cinch::Plugins
           puts "comment_post"
           @blog_title = blog_title
           # "[Blog title] New comment on Blog Post by Author @ URL"
-          response = format_blog_title(blog_title)
-          response << " New comment on \"#{}\""
-          response << format_post_title(data)
-          response << " @ " << format_post_url_short(data)
+          response = fetch_title? ?
+            format_blog_title_from_referer(request.referer) :
+            format_blog_title(blog_title)
+          response << " New comment on #{get_post_title_from_req(data, request)}"
+          response << " @ " << format_comment_url(data, request)
 
           say(blog_title, response)
         end
@@ -139,7 +170,7 @@ module Cinch::Plugins
           puts "publish_post"
           @blog_title = blog_title
           response = fetch_title? ?
-            format_blog_title_from_url(request.env['HTTP_REFERER']) :
+            format_blog_title_from_referer(request.referer) :
             format_blog_title(blog_title)
           response << " New blog post "
           response << format_post_title(data)
