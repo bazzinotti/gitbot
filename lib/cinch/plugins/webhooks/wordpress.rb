@@ -8,7 +8,6 @@
 #  "https://snestracker.wordpress.com/2016/04/05/first-people-to-compile-snes-tracker-debugger/")
 #  .split(' | ')[0]
 
-
 module Cinch::Plugins
   class Webhooks
 
@@ -21,7 +20,6 @@ module Cinch::Plugins
         # lack of the value or parent key defaults to false
         def self.ignored?(event, data, blog_title)
           config_event = config[:blogs][blog_title][event]
-          puts "MEME"
           puts config_event
           return false if !config_event
           return false unless active = config_event.key?('active')
@@ -53,6 +51,7 @@ module Cinch::Plugins
           c[:Wordpress]['blogs'].each do |k, v|
             post v['path'] do
               puts params
+              binding.pry
               event = params['hook']
               data = params
               blog_title = k
@@ -81,21 +80,61 @@ module Cinch::Plugins
           end
         end
 
+        ##############
+        # Formatting #
+        ##############
+
+        def format_blog_title(blog_title)
+          Cinch::Formatting.format(:Black, '[') +
+          Cinch::Formatting.format(:green, blog_title) +
+          Cinch::Formatting.format(:Black, ']')
+        end
+
+        def format_post_title(data)
+          Cinch::Formatting.format(:teal, "#{data["post_title"]}")
+        end
+
+        def format_post_url(data)
+          data['post_url']
+        end
+
+        def format_post_url_short(data)
+          data['guid']
+        end
+
+        ### COMMENTS
+        def format_comment_author(data)
+          Cinch::Formatting.format(:silver, data['comment_author'])
+        end
+
         #########
         # HOOKS #
         #########
 
         def get_comment_post(blog_title, data)
           puts "comment_post"
+          # "[Blog title] New comment on Blog Post by Author @ URL"
+          response = format_blog_title(blog_title)
+          response << " New comment on \"#{}\""
+          response << format_post_title(data)
+          response << " @ " << format_post_url_short(data)
+
+          say(blog_title, response)
         end
 
         def get_publish_page(blog_title, data)
           puts "publish_page"
         end
 
+        #TODO
+        ## compare post_modified_gmt and post_date_gmt to determine if a post
+        ## has been created or is being updated
         def get_publish_post(blog_title, data)
           puts "publish_post"
-          response = "Test!!"
+          response = format_blog_title(blog_title)
+          response << " New blog post "
+          response << format_post_title(data)
+          response << " @ " << format_post_url_short(data)
 
           say(blog_title, response)
         end
