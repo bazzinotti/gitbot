@@ -27,17 +27,6 @@ require_relative 'git-io'
 module Cinch::Plugins
   class Webhooks
     class Server < Sinatra::Base
-      post "/github" do
-        request.body.rewind
-        payload_body = request.body.read
-        #Github.verify_signature(payload_body) if self.class.config.key?(:secret)
-        data = JSON.parse(params[:payload])
-        event = request.env['HTTP_X_GITHUB_EVENT'].to_sym
-        return halt 202, "Ignored: #{event}" if Github.ignored?(event, data)
-        self.class.bot.handlers.dispatch(:github_hook, nil, data, event)
-        return halt 200
-      end
-
       @submodule_name = "Github"
       include Submodule
 
@@ -76,6 +65,20 @@ module Cinch::Plugins
         super
 
         @github = Github.new(config, @bot)
+
+        c = config
+        Server.class_eval do
+          post c[:Github]['path'] do
+            request.body.rewind
+            payload_body = request.body.read
+            #Github.verify_signature(payload_body) if self.class.config.key?(:secret)
+            data = JSON.parse(params[:payload])
+            event = request.env['HTTP_X_GITHUB_EVENT'].to_sym
+            return halt 202, "Ignored: #{event}" if Server::Github::ignored?(event, data)
+            self.class.bot.handlers.dispatch(:github_hook, nil, data, event)
+            return halt 200
+          end
+        end
       end
 
       class Github
@@ -86,7 +89,7 @@ module Cinch::Plugins
 
         def say(repo,msg)
           @bot.config.channels.each do |chan|
-            unless config[:filters].include? chan and not config[:filters][chan].include? repo
+            unless config[:filters] and config[:filters].include? chan and not config[:filters][chan].include? repo
               @bot.Channel(chan).send msg
             end
           end
