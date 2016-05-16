@@ -66,10 +66,12 @@ module Cinch::Plugins
         include Submodule
         attr_reader :blog_title
 
+        #TODO check for key existence
         def fetch_title?
           config[:blogs][self.blog_title]['fetch_title']
         end
 
+        #TODO check for key existence
         def blog_channels(title)
           config[:blogs][self.blog_title]['channels']
         end
@@ -87,58 +89,60 @@ module Cinch::Plugins
         ###########
         # HELPERS #
         ###########
+        module Helper
+          module_function
+          def format_title(txt)
+            Cinch::Formatting.format(:teal, txt)
+          end
 
-        def get_post_url_from_req(data, request)
-          "#{request.referer}/?p=#{data['comment_post_ID']}"
-        end
-
-        def get_post_title_from_req(data, request)
-          post_title, blog_title = Utils::URI.get_titles(
-            get_post_url_from_req(data, request)).split(' | ')
-          format_title(post_title)
-        end
-
-        ##############
-        # Formatting #
-        ##############
-
-        ##TEXT
-        def format_title(txt)
-          Cinch::Formatting.format(:teal, txt)
-        end
-
-        def format_blog_title(blog_title)
-          Cinch::Formatting.format(:Black, '[') +
-          Cinch::Formatting.format(:green, blog_title) +
-          Cinch::Formatting.format(:Black, ']')
-        end
-
-        def format_blog_title_from_referer(url)
-          blog_title = Utils::URI.get_titles(url) # .split(' | ')[0]
-          Cinch::Formatting.format(:Black, '[') +
+          def format_blog_title(blog_title)
+            Cinch::Formatting.format(:Black, '[') +
             Cinch::Formatting.format(:green, blog_title) +
             Cinch::Formatting.format(:Black, ']')
-        end
+          end
 
-        def format_post_title(data)
-          format_title("#{data["post_title"]}")
-        end
+          def format_blog_title_from_referer(url)
+            blog_title = Utils::URI.get_titles(url) # .split(' | ')[0]
+            Cinch::Formatting.format(:Black, '[') +
+              Cinch::Formatting.format(:green, blog_title) +
+              Cinch::Formatting.format(:Black, ']')
+          end
 
-        def format_post_url(data)
-          data['post_url']
-        end
+          module Post
+            module_function
+            def format_post_title(data)
+              Helper.format_title("#{data["post_title"]}")
+            end
 
-        def format_post_url_short(data)
-          data['guid']
-        end
+            def format_post_url(data)
+              data['post_url']
+            end
 
-        ### COMMENTS
-        def format_comment_author(data)
-          Cinch::Formatting.format(:silver, data['comment_author'])
-        end
+            def format_post_url_short(data)
+              data['guid']
+            end
+          end
 
-        def format_comment_url(data, request)
-          "#{get_post_url_from_req(data, request)}#comment-#{data['comment_ID']}"
+          module Comment
+            module_function
+            def get_post_url_from_req(data, request)
+              "#{request.referer}/?p=#{data['comment_post_ID']}"
+            end
+
+            def get_post_title_from_req(data, request)
+              post_title, blog_title = Utils::URI.get_titles(
+                get_post_url_from_req(data, request)).split(' | ')
+              Helper.format_title(post_title)
+            end
+
+            def format_author(data)
+              Cinch::Formatting.format(:silver, data['comment_author'])
+            end
+
+            def format_url(data, request)
+              "#{get_post_url_from_req(data, request)}#comment-#{data['comment_ID']}"
+            end
+          end
         end
 
         #########
@@ -150,10 +154,10 @@ module Cinch::Plugins
           @blog_title = blog_title
           # "[Blog title] New comment on Blog Post by Author @ URL"
           response = fetch_title? ?
-            format_blog_title_from_referer(request.referer) :
-            format_blog_title(blog_title)
-          response << " New comment on #{get_post_title_from_req(data, request)}"
-          response << " @ " << format_comment_url(data, request)
+            Helper.format_blog_title_from_referer(request.referer) :
+            Helper.format_blog_title(blog_title)
+          response << " New comment on #{Helper::Comment.get_post_title_from_req(data, request)}"
+          response << " @ " << Helper::Comment.format_url(data, request)
 
           say(blog_title, response)
         end
@@ -170,11 +174,11 @@ module Cinch::Plugins
           puts "publish_post"
           @blog_title = blog_title
           response = fetch_title? ?
-            format_blog_title_from_referer(request.referer) :
-            format_blog_title(blog_title)
+            Helper.format_blog_title_from_referer(request.referer) :
+            Helper.format_blog_title(blog_title)
           response << " New blog post "
-          response << format_post_title(data)
-          response << " @ " << format_post_url_short(data)
+          response << Helper::Post.format_post_title(data)
+          response << " @ " << Helper::Post.format_post_url_short(data)
 
           say(blog_title, response)
         end
