@@ -202,7 +202,7 @@ module Cinch::Plugins
           else
             @lower_bound = word if blank?(@lower_bound) || word > @lower_bound
           end
-          response.wrong_word(@word.before_or_after(word))
+          response.wrong_word(@word.before_or_after(word), word)
           false
         end
       end

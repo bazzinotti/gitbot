@@ -6,7 +6,7 @@ require_relative 'response.rb'
 
 module Cinch::Plugins::WordGames
   class Game
-    attr_reader :number_of_guesses, :last_guess, :word
+    attr_reader :number_of_guesses, :word
 
     def initialize(dictionary, ref_dict)
       @dict = dictionary
@@ -18,7 +18,6 @@ module Cinch::Plugins::WordGames
 
     def guess(word, response)
       @number_of_guesses += 1
-      @last_guess = word
       if @dict.word_valid?(word) || @ref_dict.word_valid?(word)
         guess_correct?(word, response)
       else
@@ -41,7 +40,7 @@ module Cinch::Plugins::WordGames
         response.game_won
         true
       else
-        response.wrong_word(@word.before_or_after(word))
+        response.wrong_word(@word.before_or_after(word), word)
         false
       end
     end

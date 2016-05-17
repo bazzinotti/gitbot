@@ -44,8 +44,8 @@ class Response
       "The word is #{game.word}. #{user}: you suck.")
   end
 
-  def wrong_word(before_or_after)
-    output.reply(%Q{My word comes #{before_or_after} "#{game.last_guess}". #{limits}})
+  def wrong_word(before_or_after, word)
+    output.reply(%Q{My word comes #{before_or_after} "#{word}". #{limits}})
   end
 
   def invalid_word(word)
