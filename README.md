@@ -1,5 +1,5 @@
 # Ayumi
-My lovely IRC bot
+My lovely IRC bot. She is named after my first Japanese penpal.
 
 # Getting Started
 
