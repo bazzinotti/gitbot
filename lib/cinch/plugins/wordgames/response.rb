@@ -48,9 +48,9 @@ class Response
     output.reply(%Q{My word comes #{before_or_after} "#{game.last_guess}". #{limits}})
   end
 
-  def invalid_word
+  def invalid_word(word)
     output.reply(
-      %Q{#{user}: "#{game.last_guess}" isn't a word. At least as far as I know. } +
+      %Q{#{user}: "#{word}" isn't a word. At least as far as I know. } +
       limits)
   end
 

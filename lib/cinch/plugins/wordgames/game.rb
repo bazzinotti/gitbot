@@ -22,7 +22,7 @@ module Cinch::Plugins::WordGames
       if @dict.word_valid?(word) || @ref_dict.word_valid?(word)
         guess_correct?(word, response)
       else
-        response.invalid_word
+        response.invalid_word(word)
         false
       end
     end
