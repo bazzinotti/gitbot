@@ -4,7 +4,8 @@ require_relative 'utils/suggestions'
 require_relative 'utils/unsuggestions'
 require_relative 'utils/misc'
 require_relative 'wordgames/game'
-require_relative 'wordgames/dict_word'
+require_relative 'wordgames/word'
+require_relative 'wordgames/dictionary'
 require_relative 'wordgames/response'
 
 
@@ -128,7 +129,7 @@ module Cinch::Plugins
       if @game
         m.reply "There's already a game running!"
       else
-        @game = Game.new(@dict, @ref_dict)
+        @game = Cinch::Plugins::WordGames::Game.new(@dict, @ref_dict)
         response(m).start_game @bot.config.plugins.prefix
       end
     end

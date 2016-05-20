@@ -1,6 +1,7 @@
 require 'cinch'
 
-require_relative 'dict_word.rb'
+require_relative 'dictionary.rb'
+require_relative 'word.rb'
 require_relative 'response.rb'
 
 module Cinch::Plugins::WordGames
@@ -52,7 +53,7 @@ module Cinch::Plugins::WordGames
         else
           @lower_bound = word if blank?(@lower_bound) || word > @lower_bound
         end
-        response.wrong_word(@word.before_or_after(word))
+        response.wrong_word(@word.before_or_after(word), word)
         false
       end
     end
