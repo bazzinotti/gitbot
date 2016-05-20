@@ -130,7 +130,7 @@ module Cinch::Plugins
         m.reply "There's already a game running!"
       else
         @game = Cinch::Plugins::Game.new(@dict, @ref_dict)
-
+        puts "Word is #{@game.solution}"
         response(m).start_game @bot.config.plugins.prefix
       end
     end
