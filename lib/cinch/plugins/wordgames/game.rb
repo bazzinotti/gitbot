@@ -13,21 +13,14 @@ module Cinch::Plugins
       @dict = dictionary
       @ref_dict = ref_dict
       @solution = Solution.new(@dict.random_word)
-      puts "Word is #{@solution}"
       @number_of_guesses = 0
-
       @lower_bound = Blank_str
       @upper_bound = Blank_str
     end
 
-    def guess(word, response)
+    def guess!(word)
       @number_of_guesses += 1
-      if @dict.word_valid?(word) || @ref_dict.word_valid?(word)
-        guess_correct?(word, response)
-      else
-        response.invalid_word(word)
-        false
-      end
+      evaluate_guess!(word)
     end
 
     def number_of_guesses_phrase
@@ -43,18 +36,19 @@ module Cinch::Plugins
       bound == Blank_str
     end
 
-    def guess_correct?(word, response)
-      if @solution == word
-        response.game_won
-        true
+    def evaluate_guess!(word)
+      if !@dict.word_valid?(word) && !@ref_dict.word_valid?(word)
+        :not_a_word
+      elsif @solution == word
+        :correct
       else
         if @solution.before?(word)
           @upper_bound = word if blank?(@upper_bound) || word < @upper_bound
+          :missed_south
         else
           @lower_bound = word if blank?(@lower_bound) || word > @lower_bound
+          :missed_north
         end
-        response.wrong_word(@solution.before_or_after(word), word)
-        false
       end
     end
 

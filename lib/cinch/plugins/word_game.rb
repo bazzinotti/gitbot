@@ -130,6 +130,7 @@ module Cinch::Plugins
         m.reply "There's already a game running!"
       else
         @game = Cinch::Plugins::Game.new(@dict, @ref_dict)
+
         response(m).start_game @bot.config.plugins.prefix
       end
     end
@@ -146,25 +147,36 @@ module Cinch::Plugins
     end
 
     match(/#{Guess_str} (\S+)/, method: :guess)
-    def guess(m, word)
-      if @game
-        word = word.downcase
-        if @game.guess(word, response(m))
-          @game = nil
-          # highlevel inc_score incoming!!!
-          user = m.user.authed? ? m.user.authname : m.user
-
-          self.highscores.inc_highscore(user)
-          if config[:show_leaderboard_after_win]
-            sleep 2
-            self.highscores.print_highscores(m, 10)
-          end
-        else
-          autocheat(m) if @game.number_of_guesses >= (config[:max_guesses] || 100)
-        end
-      else
+    def guess(m, guess)
+      if @game.nil?
         response(m).game_not_started @bot.config.plugins.prefix
+        return
       end
+
+      guess.downcase!
+
+      case @game.guess!(guess)
+      when :correct
+        response(m).game_won
+        @game = nil
+        # highlevel inc_score incoming!!!
+        user = m.user.authed? ? m.user.authname : m.user
+
+        self.highscores.inc_highscore(user)
+        if config[:show_leaderboard_after_win]
+          sleep 2
+          self.highscores.print_highscores(m, 10)
+        end
+        return
+      when :missed_north
+        response(m).wrong_word("after", guess)
+      when :missed_south
+        response(m).wrong_word("before", guess)
+      when :not_a_word
+        response(m).invalid_word(guess)
+      end
+
+      autocheat(m) if @game.number_of_guesses >= (config[:max_guesses] || 100)
     end
 
     def autocheat(m)
