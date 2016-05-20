@@ -3,10 +3,10 @@ require 'cinch'
 require_relative 'dict_word.rb'
 require_relative 'response.rb'
 
-
 module Cinch::Plugins::WordGames
   class Game
-    attr_reader :number_of_guesses, :word
+    attr_reader :number_of_guesses, :word, :lower_bound, :upper_bound
+    Blank_str = "__"
 
     def initialize(dictionary, ref_dict)
       @dict = dictionary
@@ -14,6 +14,9 @@ module Cinch::Plugins::WordGames
       @word = Word.new(@dict.random_word)
       puts "Word is #{@word}"
       @number_of_guesses = 0
+
+      @lower_bound = Blank_str
+      @upper_bound = Blank_str
     end
 
     def guess(word, response)
@@ -35,14 +38,24 @@ module Cinch::Plugins::WordGames
     end
 
   protected
+    def blank?(bound)
+      bound == Blank_str
+    end
+
     def guess_correct?(word, response)
       if @word == word
         response.game_won
         true
       else
-        response.wrong_word(@word.before_or_after(word), word)
+        if @word.before?(word)
+          @upper_bound = word if blank?(@upper_bound) || word < @upper_bound
+        else
+          @lower_bound = word if blank?(@lower_bound) || word > @lower_bound
+        end
+        response.wrong_word(@word.before_or_after(word))
         false
       end
     end
+
   end
 end

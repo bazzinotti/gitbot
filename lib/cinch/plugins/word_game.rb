@@ -175,37 +175,5 @@ module Cinch::Plugins
       end
     end
 
-
-    class Game < WordGames::Game
-      attr_reader :lower_bound, :upper_bound
-
-      Blank_str = "__"
-
-      def initialize(*args)
-        super
-        @lower_bound = Blank_str
-        @upper_bound = Blank_str
-      end
-
-    protected
-      def blank?(bound)
-        bound == Blank_str
-      end
-
-      def guess_correct?(word, response)
-        if @word == word
-          response.game_won
-          true
-        else
-          if @word.before?(word)
-            @upper_bound = word if blank?(@upper_bound) || word < @upper_bound
-          else
-            @lower_bound = word if blank?(@lower_bound) || word > @lower_bound
-          end
-          response.wrong_word(@word.before_or_after(word), word)
-          false
-        end
-      end
-    end
   end
 end
