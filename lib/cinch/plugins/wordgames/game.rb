@@ -12,7 +12,7 @@ module Cinch::Plugins
     def initialize(dictionary, ref_dict)
       @dict = dictionary
       @ref_dict = ref_dict
-      @solution = Solution.new(@dict.random_word)
+      @solution = Word.new(@dict.random_word)
       @number_of_guesses = 0
       @lower_bound = Blank_str
       @upper_bound = Blank_str
