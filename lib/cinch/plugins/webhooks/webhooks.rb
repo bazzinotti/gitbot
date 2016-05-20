@@ -56,7 +56,7 @@ module Cinch::Plugins
         }.merge(config[:Server])
 
         puts config
-  
+
         set server_config
 
         @config = config
@@ -91,7 +91,7 @@ module Cinch::Plugins
 
       post '/' do
         self.class.bot.loggers.debug "Receiving JSON payload"
-        
+
         ""
       end
 

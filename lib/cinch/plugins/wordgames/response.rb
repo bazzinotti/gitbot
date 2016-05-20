@@ -35,13 +35,13 @@ class Response
   def autocheat
     output.reply(
       "That's #{game.number_of_guesses_phrase}!! " \
-      "The word is #{game.word}. Nice try, losers!")
+      "The word is #{game.solution}. Nice try, losers!")
   end
 
   def cheat
     output.reply(
       "You want to cheat after #{game.number_of_guesses_phrase}? Fine. " \
-      "The word is #{game.word}. #{user}: you suck.")
+      "The word is #{game.solution}. #{user}: you suck.")
   end
 
   def wrong_word(before_or_after, word)

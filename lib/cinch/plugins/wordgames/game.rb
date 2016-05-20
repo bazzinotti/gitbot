@@ -1,29 +1,26 @@
 require 'cinch'
 
-require_relative 'dict_word.rb'
+require_relative 'dictionary.rb'
+require_relative 'word.rb'
 require_relative 'response.rb'
 
-
-module Cinch::Plugins::WordGames
+module Cinch::Plugins
   class Game
-    attr_reader :number_of_guesses, :word
+    attr_reader :number_of_guesses, :lower_bound, :upper_bound, :solution
+    Blank_str = "__"
 
     def initialize(dictionary, ref_dict)
       @dict = dictionary
       @ref_dict = ref_dict
-      @word = Word.new(@dict.random_word)
-      puts "Word is #{@word}"
+      @solution = Word.new(@dict.random_word)
       @number_of_guesses = 0
+      @lower_bound = Blank_str
+      @upper_bound = Blank_str
     end
 
-    def guess(word, response)
+    def guess!(word)
       @number_of_guesses += 1
-      if @dict.word_valid?(word) || @ref_dict.word_valid?(word)
-        guess_correct?(word, response)
-      else
-        response.invalid_word(word)
-        false
-      end
+      evaluate_guess!(word)
     end
 
     def number_of_guesses_phrase
@@ -35,14 +32,25 @@ module Cinch::Plugins::WordGames
     end
 
   protected
-    def guess_correct?(word, response)
-      if @word == word
-        response.game_won
-        true
+    def blank?(bound)
+      bound == Blank_str
+    end
+
+    def evaluate_guess!(word)
+      if !@dict.word_valid?(word) && !@ref_dict.word_valid?(word)
+        :not_a_word
+      elsif @solution == word
+        :correct
       else
-        response.wrong_word(@word.before_or_after(word), word)
-        false
+        if @solution.before?(word)
+          @upper_bound = word if blank?(@upper_bound) || word < @upper_bound
+          :missed_south
+        else
+          @lower_bound = word if blank?(@lower_bound) || word > @lower_bound
+          :missed_north
+        end
       end
     end
+
   end
 end
