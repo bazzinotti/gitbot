@@ -4,7 +4,7 @@ require_relative 'dictionary.rb'
 require_relative 'word.rb'
 require_relative 'response.rb'
 
-module Cinch::Plugins::WordGames
+module Cinch::Plugins
   class Game
     attr_reader :number_of_guesses, :word, :lower_bound, :upper_bound
     Blank_str = "__"
