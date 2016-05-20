@@ -9,6 +9,7 @@ class Solution
     @word < guess
   end
 
+  # this function is no longer used and should be removed soonish
   def before_or_after(guess)
     before?(guess) ? "before" : "after"
   end
