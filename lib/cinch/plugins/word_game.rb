@@ -4,7 +4,7 @@ require_relative 'utils/suggestions'
 require_relative 'utils/unsuggestions'
 require_relative 'utils/misc'
 require_relative 'wordgames/game'
-require_relative 'wordgames/word'
+require_relative 'wordgames/solution'
 require_relative 'wordgames/dictionary'
 require_relative 'wordgames/response'
 
