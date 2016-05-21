@@ -1,7 +1,7 @@
 require 'cinch'
 
 require_relative 'dictionary.rb'
-require_relative 'solution.rb'
+require_relative 'word.rb'
 require_relative 'response.rb'
 
 module Cinch::Plugins
