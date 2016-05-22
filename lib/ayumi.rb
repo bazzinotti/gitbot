@@ -7,3 +7,5 @@ require 'bazz/utils/redis'
 require 'bazz/utils/scores'
 
 require 'ayumi/bot.rb'
+
+require 'cinch/plugins/word_game.rb'

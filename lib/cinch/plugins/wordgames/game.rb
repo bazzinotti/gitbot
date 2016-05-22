@@ -6,13 +6,14 @@ require_relative 'response.rb'
 
 module Cinch::Plugins
   class Game
-    attr_reader :number_of_guesses, :lower_bound, :upper_bound, :solution
+    attr_reader :number_of_guesses, :lower_bound, :upper_bound
+    attr_accessor :solution
     Blank_str = "__"
 
-    def initialize(dictionary, ref_dict)
+    def initialize(dictionary, ref_dict, solution: solution)
       @dict = dictionary
       @ref_dict = ref_dict
-      @solution = Word.new(@dict.random_word)
+      @solution = solution ? Word.new(solution) : Word.new(@dict.random_word)
       @number_of_guesses = 0
       @lower_bound = Blank_str
       @upper_bound = Blank_str
