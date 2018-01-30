@@ -50,7 +50,7 @@ class Response
 
   def invalid_word(word)
     output.reply(
-      %Q{#{user}: "#{word}" isn't a word. At least as far as I know. } +
+      %Q{"#{word}" isn't a word #{user}! At least as far as I know. } +
       limits)
   end
 
