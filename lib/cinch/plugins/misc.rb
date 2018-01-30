@@ -7,6 +7,8 @@ module Cinch
 
       listen_to :join
       # listen_to :leaving, method: :left
+      match /op (\S+) (.+)/, :method => :op
+      #match /op (.+)/, :method => :op
 
       def listen(m)
         #return if m.user == @bot
@@ -20,6 +22,10 @@ module Cinch
 
       #   m.reply "Goodbye #{user}"
       # end
+
+      def op(m, channel, user)
+        Channel(channel).op(user) if @bot.admin?(m.user)
+      end
     end
   end
 end
