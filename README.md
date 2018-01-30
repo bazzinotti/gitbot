@@ -1,6 +1,27 @@
 # Ayumi
 My lovely IRC bot. She is named after my first Japanese penpal.
 
+Ayumi is based on the [Cinch Framework](https://github.com/cinchrb/cinch) and is easily extendable via plugins.
+
+# Features
+- Github repo updates (all github repo webhooks are supported)
+
+![](https://github.com/bazzinotti/ayumi/blob/gh-pages/github.png?raw=true)
+- Wordgame!
+
+![](https://github.com/bazzinotti/ayumi/blob/gh-pages/wordgame.png?raw=true)
+- quick Google lookup
+
+![](https://github.com/bazzinotti/ayumi/blob/gh-pages/google.png?raw=true)
+- text substitution
+
+![](https://github.com/bazzinotti/ayumi/blob/gh-pages/s.png?raw=true)
+- Wordpress webhooks updates
+
+![](https://github.com/bazzinotti/ayumi/blob/gh-pages/wordpress.png?raw=true)
+
+- Much more! For details, invoke `@help` or investigate the code!
+
 # Getting Started
 
 This doc is largely geared towards UNIX-based systems such as Linux or Mac.
