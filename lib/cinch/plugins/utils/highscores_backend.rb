@@ -13,7 +13,8 @@ module Cinch::Plugins
             "Leaderboard" << " ─── " <<  "(Top #{ts.length})" << " ─" << "\n"
           ts.each_with_index do |us, ix|
             num_wins = us[1].to_i
-            response << "RANK #{ix+1}) #{us[0]} - #{num_wins} win#{"s" if num_wins > 1}\n"
+	    last_win_time = Time.at(us[2]).strftime("%Y-%m-%d")
+            response << "RANK #{ix+1}) #{us[0]} - #{num_wins} win#{"s" if num_wins > 1} (#{last_win_time})\n"
           end
           response << "\n" << "└ ─ ─ ─ ─ ─ ─ ─ ─\n"
           m.reply(response)
@@ -22,6 +23,10 @@ module Cinch::Plugins
         def highscore_table
           raise NotImplementedError, "Implement this method in a child class"
         end
+
+	def get_highscore_time
+	  raise NotImplementedError, "Implement this method in a child class"
+	end
 
         def inc_highscore
           raise NotImplementedError, "Implement this method in a child class"
@@ -52,7 +57,12 @@ module Cinch::Plugins
           "#{highscore_table}:#{user}:time"
         end
 
-        # increments a user's score by 1
+	# Returns UTC time-since-epoch timestamp as a string
+	def get_highscore_time(user)
+	  Bazz::Utils::Redis.get(highscore_time(user))
+	end
+
+	# increments a user's score by 1
         def inc_highscore(user)
           inc_score(highscore_table, user)
           # update time
@@ -70,16 +80,16 @@ module Cinch::Plugins
             # let's do fun sorting!!
             user_time = []
             users.each do |u|
-              user_time << [u, Bazz::Utils::Redis.get(highscore_time(u)).to_i]
+              user_time << [u, get_highscore_time(u).to_i]
             end
             # sort it
             puts user_time.sort_by(&:last)
             user_time.sort_by(&:last).each do |u, t|
-              real_scores << [u, last_score]
+              real_scores << [u, last_score, t]
             end
           else
             # if not, just add it to real_scores
-            real_scores << [users[0], last_score]
+            real_scores << [users[0], last_score, get_highscore_time(users[0]).to_i]
           end
           real_scores
         end
